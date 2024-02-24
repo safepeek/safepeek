@@ -1,7 +1,7 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
 import extractUrls from 'extract-urls';
 import { MessageEmbed } from 'slash-create/lib/web';
-import { resultEmbedBuilder } from '@/lib/ui';
+import { resultEmbedBuilder } from '@/ui';
 import { analyzeUrl } from '@/lib/fetch';
 
 export default class AnalyzeSlashCommand extends SlashCommand {
@@ -20,11 +20,12 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    await ctx.defer(true);
+
     const urls = extractUrls(ctx.options.url as string);
-    if (!urls) return ctx.send({ content: `The provided URL \`${ctx.options.url}\` was invalid.`, ephemeral: true });
+    if (!urls) return ctx.send({ content: `The provided URL \`${ctx.options.url}\` was invalid.` });
 
     const url = urls![0];
-    await ctx.defer(true);
 
     const data = await analyzeUrl(url);
     const embed: MessageEmbed = resultEmbedBuilder(data);
