@@ -1,5 +1,5 @@
+import { AnalysisResponse } from '@/lib/fetch';
 import { MessageEmbed } from 'slash-create/web';
-import { AnalysisResponse } from './fetch';
 
 export const resultEmbedBuilder = (data: AnalysisResponse): MessageEmbed => {
   return {
