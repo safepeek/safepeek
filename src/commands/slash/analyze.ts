@@ -48,7 +48,10 @@ export default class AnalyzeSlashCommand extends SlashCommand {
       });
     } catch (e: any) {
       console.log(e);
-      return ctx.send('Check console for error.');
+      return ctx.send({
+        content: 'Check console for error.',
+        ephemeral: true
+      });
     }
   }
 }

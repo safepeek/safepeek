@@ -1,5 +1,5 @@
 {
-  "id": "c9a8340b-0ba4-46bf-b9c7-0ce9fcad418d",
+  "id": "6f51d5a4-de38-49e0-9897-6facf8131553",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "5",
   "dialect": "pg",
@@ -13,12 +13,6 @@
           "type": "varchar(26)",
           "primaryKey": true,
           "notNull": true
-        },
-        "message_id": {
-          "name": "message_id",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": false
         },
         "channel_id": {
           "name": "channel_id",
@@ -35,6 +29,53 @@
         "command_author_id": {
           "name": "command_author_id",
           "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "url_id": {
+          "name": "url_id",
+          "type": "varchar(26)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "context": {
+          "name": "context",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "urls": {
+      "name": "urls",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(26)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "source_url_hash": {
+          "name": "source_url_hash",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
@@ -56,8 +97,14 @@
           "primaryKey": false,
           "notNull": false
         },
-        "context": {
-          "name": "context",
+        "meta_title": {
+          "name": "meta_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meta_description": {
+          "name": "meta_description",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -66,7 +113,8 @@
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
@@ -76,31 +124,10 @@
         }
       },
       "indexes": {
-        "author_idx": {
-          "name": "author_idx",
+        "url_hash_idx": {
+          "name": "url_hash_idx",
           "columns": [
-            "command_author_id"
-          ],
-          "isUnique": true
-        },
-        "guild_idx": {
-          "name": "guild_idx",
-          "columns": [
-            "guild_id"
-          ],
-          "isUnique": true
-        },
-        "channel_idx": {
-          "name": "channel_idx",
-          "columns": [
-            "channel_id"
-          ],
-          "isUnique": true
-        },
-        "context_idx": {
-          "name": "context_idx",
-          "columns": [
-            "context"
+            "source_url_hash"
           ],
           "isUnique": true
         }
@@ -111,7 +138,9 @@
     }
   },
   "enums": {},
-  "schemas": {},
+  "schemas": {
+    "results_schema": "results_schema"
+  },
   "_meta": {
     "columns": {},
     "schemas": {},
