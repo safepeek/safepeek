@@ -8,14 +8,27 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
         with:
           version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Migrate
         run: pnpm db:migrate
         env:
           POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
+
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
