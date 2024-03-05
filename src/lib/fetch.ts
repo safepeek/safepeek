@@ -1,10 +1,5 @@
-export type AnalysisResponse = {
-  title: string;
-  description: string;
-  sourceUrl: string;
-  destinationUrl: string;
-  redirects: string[];
-};
+// TODO: further handle fetch-related errors
+import { type AnalysisData } from '@/types/url';
 
 const fetcher = (url: string) => {
   return fetch(url, {
@@ -18,6 +13,11 @@ const fetcher = (url: string) => {
       Referer: 'https://google.com/'
     }
   });
+};
+
+export const validateUrl = async (url: string): Promise<boolean> => {
+  const response = await fetcher(url);
+  return response.ok;
 };
 
 const fetchWithRedirects = async (url: string) => {
@@ -56,7 +56,7 @@ const getMetadata = async (response: Response) => {
   return { title, description };
 };
 
-export const analyzeUrl = async (url: string): Promise<AnalysisResponse> => {
+export const fetchUrlData = async (url: string): Promise<AnalysisData> => {
   const response = await fetcher(url);
   const sourceUrl = url;
   const destinationUrl = response.url;

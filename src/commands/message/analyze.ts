@@ -1,8 +1,16 @@
 import extractUrls from 'extract-urls';
 
-import { ApplicationCommandType, CommandContext, ComponentType, SlashCommand, SlashCreator } from 'slash-create/web';
+import {
+  ApplicationCommandType,
+  CommandContext,
+  ComponentType,
+  SlashCommand,
+  SlashCreator,
+  ComponentSelectOption
+} from 'slash-create/web';
 import { cancelButton, jumpToMessageButton, resultEmbedBuilder, urlButtons, urlSelectComponent } from '@/ui';
-import { analyzeUrl } from '@/lib/fetch';
+import { validateUrl } from '@/lib/fetch';
+import { analyzeUrl } from '@/lib/urls';
 
 export default class AnalyzeMessageCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -20,14 +28,17 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     if (!urls) return ctx.send({ content: 'No valid URLs on this message.' });
 
     const component = urlSelectComponent;
+    const options: ComponentSelectOption[] = [];
 
     for (const url of urls) {
-      component.options!.push({
+      options.push({
         label: url,
         value: url,
         description: 'The parsed URL result.'
       });
     }
+
+    component.options = options;
 
     await ctx.send({
       content: 'Choose a URL to analyze:',
@@ -74,29 +85,46 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     ctx.registerComponent('analyze_button', async (btnCtx) => {
-      const data = await analyzeUrl(url);
-      const embed = resultEmbedBuilder(data);
+      try {
+        const validUrl = await validateUrl(url);
+        if (!validUrl) return ctx.send(`The following URL has no response: \`${url}\``);
 
-      return ctx.editOriginal({
-        embeds: [embed],
-        components: [
-          {
-            type: ComponentType.ACTION_ROW,
-            components: [urlSelectComponent]
-          },
-          {
-            type: ComponentType.ACTION_ROW,
-            components: [
-              jumpToMessageButton({
-                guildId: ctx.guildID!,
-                channelId: ctx.targetMessage!.channelID,
-                messageId: ctx.targetMessage!.id
-              }),
-              cancelButton
-            ]
-          }
-        ]
-      });
+        const data = await analyzeUrl({
+          creator: this.creator,
+          ctx,
+          url
+        });
+
+        const embed = resultEmbedBuilder({
+          input: data.data,
+          resultId: data.id,
+          existed: data.existed
+        });
+
+        return ctx.editOriginal({
+          embeds: [embed],
+          components: [
+            {
+              type: ComponentType.ACTION_ROW,
+              components: [urlSelectComponent]
+            },
+            {
+              type: ComponentType.ACTION_ROW,
+              components: [
+                jumpToMessageButton({
+                  guildId: ctx.guildID!,
+                  channelId: ctx.targetMessage!.channelID,
+                  messageId: ctx.targetMessage!.id
+                }),
+                cancelButton
+              ]
+            }
+          ]
+        });
+      } catch (e: any) {
+        console.log(e);
+        return ctx.send('Check console for error.');
+      }
     });
 
     ctx.registerComponent('cancel_button', async (btnCtx) => {
