@@ -44,8 +44,6 @@ export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResp
       ctx: props.ctx,
       dbClient
     });
-
-    await dbClient.end();
   } catch (e: any) {
     if (e.code === '23505') {
       const existingUrl = await findExistingUrl({
@@ -70,6 +68,8 @@ export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResp
 
     throw e;
   }
+
+  await dbClient.end();
 
   return { data, id };
 };
