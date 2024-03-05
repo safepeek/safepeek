@@ -1,14 +1,17 @@
 import { commands } from './commands';
 import { SlashCreator, CloudflareWorkerServer } from 'slash-create/web';
+import { Env } from '@/types';
 
 const cfServer = new CloudflareWorkerServer();
 let creator: SlashCreator;
 // Since we only get our secrets on fetch, set them before running
-function makeCreator(env: Record<string, any>) {
+function makeCreator(env: Env) {
   creator = new SlashCreator({
     applicationID: env.DISCORD_APP_ID,
     publicKey: env.DISCORD_PUBLIC_KEY,
-    token: env.DISCORD_BOT_TOKEN
+    token: env.DISCORD_BOT_TOKEN,
+    // TODO: add typings for this
+    client: env
   });
   creator.withServer(cfServer).registerCommands(commands);
 
@@ -23,7 +26,7 @@ function makeCreator(env: Record<string, any>) {
 }
 
 export default {
-  async fetch(request: any, env: Record<string, any>, ctx: any) {
+  async fetch(request: any, env: Env, ctx: any) {
     if (!creator) makeCreator(env);
     return cfServer.fetch(request, env, ctx);
   }
