@@ -1,8 +1,8 @@
 import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
 import extractUrls from 'extract-urls';
-import { MessageEmbed } from 'slash-create/lib/web';
 import { resultEmbedBuilder } from '@/ui';
-import { analyzeUrl } from '@/lib/fetch';
+import { validateUrl } from '@/lib/fetch';
+import { analyzeUrl } from '@/lib/urls';
 
 export default class AnalyzeSlashCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -25,14 +25,30 @@ export default class AnalyzeSlashCommand extends SlashCommand {
     const urls = extractUrls(ctx.options.url as string);
     if (!urls) return ctx.send({ content: `The provided URL \`${ctx.options.url}\` was invalid.` });
 
-    const url = urls![0];
+    try {
+      const url = urls[0];
+      const validUrl = await validateUrl(url);
+      if (!validUrl) return ctx.send(`The following URL has no response: \`${url}\``);
 
-    const data = await analyzeUrl(url);
-    const embed: MessageEmbed = resultEmbedBuilder(data);
+      const data = await analyzeUrl({
+        creator: this.creator,
+        ctx,
+        url: urls![0]
+      });
 
-    return ctx.send({
-      embeds: [embed],
-      ephemeral: true
-    });
+      const embed = resultEmbedBuilder({
+        input: data.data,
+        resultId: data.id,
+        existed: data.existed
+      });
+
+      return ctx.send({
+        content: `\`${data.id}\``,
+        embeds: [embed]
+      });
+    } catch (e: any) {
+      console.log(e);
+      return ctx.send('Check console for error.');
+    }
   }
 }
