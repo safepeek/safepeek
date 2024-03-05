@@ -20,6 +20,7 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    // TODO: handle defers better because executions are taking longer than 3 seconds
     await ctx.defer(true);
 
     const urls = extractUrls(ctx.options.url as string);
