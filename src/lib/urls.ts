@@ -73,3 +73,11 @@ export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResp
 
   return { data, id };
 };
+
+export const truncate = (string: string, maxLength: number): string => {
+  if (string.length >= maxLength) {
+    return string.substring(0, maxLength - 4) + '...';
+  } else {
+    return string;
+  }
+};

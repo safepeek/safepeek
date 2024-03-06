@@ -16,13 +16,11 @@ function makeCreator(env: Env) {
   creator.withServer(cfServer).registerCommands(commands);
 
   creator.on('warn', (message) => console.warn(message));
-  creator.on('error', (error) => console.error(error.stack || error.toString()));
+  creator.on('error', (error) => console.error(error));
   creator.on('commandRun', (command, _, ctx) =>
     console.info(`${ctx.user.username}#${ctx.user.discriminator} (${ctx.user.id}) ran command ${command.commandName}`)
   );
-  creator.on('commandError', (command, error) =>
-    console.error(`Command ${command.commandName} errored:`, error.stack || error.toString())
-  );
+  creator.on('commandError', (command, error) => console.error(`Command ${command.commandName} errored:`, error));
 }
 
 export default {
