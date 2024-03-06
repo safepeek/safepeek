@@ -20,16 +20,15 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    // TODO: handle defers better because executions are taking longer than 3 seconds
     await ctx.defer(true);
 
     const urls = extractUrls(ctx.options.url as string);
-    if (!urls) return ctx.send({ content: `The provided URL \`${ctx.options.url}\` was invalid.` });
+    if (!urls) return ctx.editOriginal({ content: `The provided URL \`${ctx.options.url}\` was invalid.` });
 
     try {
       const url = urls[0];
       const validUrl = await validateUrl(url);
-      if (!validUrl) return ctx.send(`The following URL has no response: \`${url}\``);
+      if (!validUrl) return ctx.editOriginal(`The following URL has no response: \`${url}\``);
 
       const data = await analyzeUrl({
         creator: this.creator,
@@ -43,7 +42,7 @@ export default class AnalyzeSlashCommand extends SlashCommand {
         existed: data.existed
       });
 
-      return ctx.send({
+      return ctx.editOriginal({
         content: `\`${data.id}\``,
         embeds: [embed]
       });

@@ -21,7 +21,6 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    // TODO: handle defers better because executions are taking longer than 3 seconds
     await ctx.defer(true);
 
     const messageContent = ctx.targetMessage!.content;
@@ -41,8 +40,9 @@ export default class AnalyzeMessageCommand extends SlashCommand {
 
     component.options = options;
 
-    await ctx.send({
+    await ctx.editOriginal({
       content: 'Choose a URL to analyze:',
+      embeds: [],
       components: [
         {
           type: ComponentType.ACTION_ROW,
