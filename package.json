@@ -1,7 +1,7 @@
 {
-  "name": "slash-create-worker-template",
-  "description": "A template for slash-create with Cloudflare Workers",
-  "author": "Snazzah",
+  "name": "safepeek",
+  "version": "1.0.0",
+  "description": "Enhance Discord with secure link previews, metadata insights, and safety checks. Built for serverless environments.",
   "main": "src/index.ts",
   "private": true,
   "scripts": {
@@ -15,6 +15,19 @@
     "db:push": "drizzle-kit push:pg",
     "db:migrate": "tsx src/lib/db/migrate.ts"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/safepeek/safepeek.git"
+  },
+  "author": "Anthony Collier <hello@acollier.dev>",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/safepeek/safepeek/issues"
+  },
+  "homepage": "https://github.com/safepeek/safepeek#readme",
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240208.0",
     "@types/common-tags": "^1.8.4",
