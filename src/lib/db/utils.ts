@@ -1,5 +1,5 @@
 import { AnalysisData } from '@/types/url';
-import { CommandContext } from 'slash-create/web';
+import { CommandContext, ComponentContext } from 'slash-create/web';
 import { database } from '@/lib/db/index';
 import { Client } from 'pg';
 import { results, urls } from '@/lib/db/schema';
@@ -7,7 +7,7 @@ import { results, urls } from '@/lib/db/schema';
 type InsertUrlProps = {
   data: AnalysisData;
   hashedUrl: string;
-  ctx: CommandContext;
+  ctx: CommandContext | ComponentContext;
   dbClient: Client;
 };
 

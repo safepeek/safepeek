@@ -1,4 +1,4 @@
-import { BaseSlashCreator, CommandContext } from 'slash-create/web';
+import { BaseSlashCreator, CommandContext, ComponentContext } from 'slash-create/web';
 import { decryptUrlData, encryptUrlData, hash } from '@/lib/crypto';
 import { client } from '@/lib/db';
 import { fetchUrlData } from '@/lib/fetch';
@@ -7,7 +7,7 @@ import { AnalysisData } from '@/types/url';
 
 type AnalyzeUrlProps = {
   creator: BaseSlashCreator;
-  ctx: CommandContext;
+  ctx: CommandContext | ComponentContext;
   url: string;
 };
 
