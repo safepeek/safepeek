@@ -3,8 +3,10 @@ import extractUrls from 'extract-urls';
 import {
   ApplicationCommandType,
   CommandContext,
+  ComponentContext,
   ComponentSelectOption,
   ComponentType,
+  Message,
   SlashCommand,
   SlashCreator
 } from 'slash-create/web';
@@ -68,11 +70,13 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     ctx.registerComponent('url_select', async (selectCtx) => {
-      return this.handleUrl(ctx, selectCtx.values[0]);
+      return this.handleUrl(selectCtx, ctx.targetMessage!);
     });
   }
 
-  private async handleUrl(ctx: CommandContext, selectedUrl: string) {
+  private async handleUrl(ctx: ComponentContext, targetMessage: Message) {
+    const selectedUrl = ctx.values[0];
+
     const component = urlSelectComponent;
     component.options = component.options!.map((opt) => {
       if (opt.value === selectedUrl) {
@@ -101,8 +105,8 @@ export default class AnalyzeMessageCommand extends SlashCommand {
             ...urlButtons,
             jumpToMessageButton({
               guildId: ctx.guildID!,
-              channelId: ctx.targetMessage!.channelID,
-              messageId: ctx.targetMessage!.id
+              channelId: targetMessage.channelID,
+              messageId: targetMessage.id
             })
           ]
         }
@@ -110,7 +114,6 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     ctx.registerComponent('analyze_button', async (btnCtx) => {
-      // try {
       component.options = component.options!.map((opt) => {
         if (opt.default) {
           return {
@@ -123,11 +126,11 @@ export default class AnalyzeMessageCommand extends SlashCommand {
       });
 
       const validUrl = await validateUrl(selectedUrl);
-      if (!validUrl) return ctx.editOriginal(`The following URL has no response: \`${selectedUrl}\``);
+      if (!validUrl) return btnCtx.editOriginal(`The following URL has no response: \`${selectedUrl}\``);
 
       const data = await analyzeUrl({
         creator: this.creator,
-        ctx,
+        ctx: btnCtx,
         url: selectedUrl
       });
 
@@ -137,7 +140,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
         existed: data.existed
       });
 
-      return ctx.editOriginal({
+      return btnCtx.editOriginal({
         content: '',
         embeds: [embed],
         components: [
@@ -150,8 +153,8 @@ export default class AnalyzeMessageCommand extends SlashCommand {
             components: [
               jumpToMessageButton({
                 guildId: ctx.guildID!,
-                channelId: ctx.targetMessage!.channelID,
-                messageId: ctx.targetMessage!.id
+                channelId: targetMessage.channelID,
+                messageId: targetMessage.id
               }),
               cancelButton
             ]
@@ -161,7 +164,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     ctx.registerComponent('cancel_button', async (btnCtx) => {
-      return ctx.delete();
+      return btnCtx.delete();
     });
   }
 }
