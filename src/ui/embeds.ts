@@ -1,5 +1,6 @@
 import { AnalysisData } from '@/types/url';
 import { MessageEmbed } from 'slash-create/web';
+import { EMBED_COLOR } from '@/lib/constants';
 
 type ResultEmbedInput = {
   input: AnalysisData;
@@ -12,7 +13,7 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
     type: 'rich',
     title: 'SafePeek Results',
     description: "Here's what I found about the URL you asked me to analyze:",
-    color: 0x0099ff,
+    color: EMBED_COLOR,
     fields: [
       {
         name: 'Title',
