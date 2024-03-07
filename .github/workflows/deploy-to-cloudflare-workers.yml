@@ -45,6 +45,6 @@ jobs:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           preCommands: |
             echo "*** update last commit variables ***"
-            wrangler secret put LAST_COMMIT <<< "${{ env.COMMIT_HASH_FULL }}"
-            wrangler secret put LAST_COMMIT_SHORT <<< "${{ env.COMMIT_HASH_SHORT }}"
+            echo "${{ env.COMMIT_HASH_FULL }}" | wrangler secret put LAST_COMMIT
+            echo "${{ env.COMMIT_HASH_SHORT }}" | wrangler secret put LAST_COMMIT_SHORT
             echo "******"
