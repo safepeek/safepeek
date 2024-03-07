@@ -5,4 +5,6 @@ export type Env = {
   DEVELOPMENT_GUILD_ID: string;
   URL_ENCRYPTION_KEY: string;
   POSTGRES_URL: string;
+  LAST_COMMIT: string;
+  LAST_COMMIT_SHORT: string;
 };

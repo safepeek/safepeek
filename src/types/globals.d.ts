@@ -6,6 +6,8 @@ declare const DEVELOPMENT_GUILD_ID: string;
 declare const URL_ENCRYPTION_KEY: string;
 declare const POSTGRES_URL: string;
 declare const NODE_ENV: string;
+declare const LAST_COMMIT: string;
+declare const LAST_COMMIT_SHORT: string;
 
 // extract-urls.d.ts
 declare module 'extract-urls' {

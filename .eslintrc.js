@@ -12,7 +12,9 @@ module.exports = {
     DEVELOPMENT_GUILD_ID: true,
     URL_ENCRYPTION_KEY: true,
     POSTGRES_URL: true,
-    NODE_ENV: true
+    NODE_ENV: true,
+    LAST_COMMIT: true,
+    LAST_COMMIT_SHORT: true
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {
