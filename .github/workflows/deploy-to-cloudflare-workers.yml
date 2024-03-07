@@ -11,6 +11,16 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
+      - name: Set up environment variables
+        run: |
+          echo "COMMIT_HASH_FULL=$(git rev-parse HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_HASH_SHORT=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+
+      - name: Print commit hashes
+        run: |
+          echo "Full commit hash: $COMMIT_HASH_FULL"
+          echo "Short commit hash: $COMMIT_HASH_SHORT"
+
       - name: Set up pnpm
         uses: pnpm/action-setup@v3
         with:
@@ -33,3 +43,8 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          preCommands: |
+            echo "*** update last commit variables ***"
+            wrangler secret put LAST_COMMIT <<< "${{ env.COMMIT_HASH_FULL }}"
+            wrangler secret put LAST_COMMIT_SHORT <<< "${{ env.COMMIT_HASH_SHORT }}"
+            echo "******"
