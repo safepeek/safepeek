@@ -28,7 +28,8 @@ export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResp
     redirects: data.redirects
   });
 
-  await dbClient.end();
+  // TODO: look into properly running dbClient.end() as the worker process is killed before the rest of the function can run
+  // await dbClient.end();
 
   return { data, id };
 };
