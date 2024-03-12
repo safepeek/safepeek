@@ -1,4 +1,4 @@
-export function generateULID(): string {
+export function ulid(): string {
   const timestamp = new Date().getTime();
   const randomPart = crypto.getRandomValues(new Uint8Array(10));
   return encodeTime(timestamp, 10) + encodeRandom(randomPart, 16);
