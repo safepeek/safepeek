@@ -41,8 +41,7 @@ export default class AnalyzeSlashCommand extends SlashCommand {
 
     const embed = resultEmbedBuilder({
       input: data.data,
-      resultId: data.id,
-      existed: data.existed
+      analyzedId: data.id
     });
 
     return ctx.editOriginal({

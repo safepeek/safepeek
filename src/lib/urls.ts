@@ -1,8 +1,7 @@
 import { BaseSlashCreator, CommandContext, ComponentContext } from 'slash-create/web';
-import { decryptUrlData, encryptUrlData, hash } from '@/lib/crypto';
 import { client } from '@/lib/db';
 import { fetchUrlData } from '@/lib/fetch';
-import { findExistingUrl, insertUrlData } from '@/lib/db/utils';
+import { createFromAnalyzedUrlData } from '@/lib/db/utils';
 import { AnalysisData } from '@/types/url';
 
 type AnalyzeUrlProps = {
@@ -14,60 +13,20 @@ type AnalyzeUrlProps = {
 type AnalyzeUrlResponse = {
   data: AnalysisData;
   id: string;
-  existed?: boolean;
 };
 
 export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResponse> => {
   const data = await fetchUrlData(props.url);
 
-  const encryptedData = await encryptUrlData(
-    {
-      sourceUrl: data.sourceUrl,
-      destinationUrl: data.destinationUrl,
-      title: data.title,
-      description: data.description,
-      redirects: data.redirects
-    },
-    props.creator.client.URL_ENCRYPTION_KEY
-  );
-
-  const hashedUrl = await hash(data.sourceUrl);
-
-  let id: string;
   const dbClient = client(props.creator.client);
   await dbClient.connect();
 
-  try {
-    id = await insertUrlData({
-      data: encryptedData,
-      hashedUrl,
-      ctx: props.ctx,
-      dbClient
-    });
-  } catch (e: any) {
-    if (e.code === '23505') {
-      const existingUrl = await findExistingUrl({
-        dbClient,
-        hashedUrl
-      });
-      id = existingUrl[0].id;
-
-      const decrypted = await decryptUrlData(
-        {
-          sourceUrl: existingUrl[0].sourceUrl!,
-          destinationUrl: existingUrl[0].destinationUrl!,
-          title: existingUrl[0].metaTitle!,
-          description: existingUrl[0].metaDescription!,
-          redirects: existingUrl[0].redirects!
-        },
-        props.creator.client.URL_ENCRYPTION_KEY
-      );
-
-      return { data: decrypted, id, existed: true };
-    }
-
-    throw e;
-  }
+  const id = await createFromAnalyzedUrlData(dbClient, {
+    guildId: props.ctx.guildID ? BigInt(props.ctx.guildID) : null,
+    userId: BigInt(props.ctx.user.id),
+    channelId: BigInt(props.ctx.channelID),
+    redirects: data.redirects
+  });
 
   await dbClient.end();
 

@@ -4,8 +4,7 @@ import { EMBED_COLOR } from '@/lib/constants';
 
 type ResultEmbedInput = {
   input: AnalysisData;
-  resultId: string;
-  existed?: boolean;
+  analyzedId: string;
 };
 
 export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
@@ -37,7 +36,7 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
       },
       {
         name: 'Redirects',
-        value: data.input.redirects.join('\n'),
+        value: data.input.redirects.map((res) => res.rawUrl).join('\n'),
         inline: false
       },
       {
@@ -47,7 +46,7 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
       }
     ],
     footer: {
-      text: `${data.existed ? 'Existing' : 'New'} record | ${data.resultId}`
+      text: data.analyzedId
     },
     timestamp: new Date()
   };

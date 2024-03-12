@@ -136,8 +136,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
 
       const embed = resultEmbedBuilder({
         input: data.data,
-        resultId: data.id,
-        existed: data.existed
+        analyzedId: data.id
       });
 
       return btnCtx.editOriginal({

@@ -1,5 +1,5 @@
 // TODO: further handle fetch-related errors
-import { type AnalysisData } from '@/types/url';
+import { type AnalysisData, AnalyzedUrlRedirect } from '@/types/url';
 
 const fetcher = (url: string) => {
   return fetch(url, {
@@ -22,14 +22,23 @@ export const validateUrl = async (url: string): Promise<boolean> => {
 
 const fetchWithRedirects = async (url: string) => {
   let response = await fetcher(url);
-  const urls: string[] = [];
+  const urls: AnalyzedUrlRedirect[] = [];
+  const metadata = await getMetadata(response);
 
   while (response.redirected) {
-    urls.push(response.url);
+    const meta = await getMetadata(response);
+    urls.push({
+      rawUrl: response.url,
+      meta
+    });
     response = await fetcher(response.url);
   }
 
-  urls.push(response.url);
+  urls.push({
+    rawUrl: response.url,
+    meta: metadata
+  });
+
   return urls;
 };
 
@@ -51,7 +60,11 @@ const getMetadata = async (response: Response) => {
       }
     });
 
-  await rewriter.transform(response).text(); // Ensure HTMLRewriter processes the entire document
+  try {
+    await rewriter.transform(response).text(); // Ensure HTMLRewriter processes the entire document
+  } catch (e: any) {
+    return { title, description }; // if there's an error, just return the default data
+  }
 
   return { title, description };
 };
