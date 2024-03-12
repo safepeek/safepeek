@@ -17,9 +17,6 @@ dependencies:
   pg:
     specifier: ^8.11.3
     version: 8.11.3
-  ulid:
-    specifier: ^2.3.0
-    version: 2.3.0
 
 devDependencies:
   '@cloudflare/workers-types':
@@ -2790,11 +2787,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
-
-  /ulid@2.3.0:
-    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
-    hasBin: true
-    dev: false
 
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
