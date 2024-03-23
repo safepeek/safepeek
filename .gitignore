@@ -7,3 +7,4 @@ node_modules
 .wrangler/*
 .mf/*
 .idea/*
+drizzle.config.dev.ts
