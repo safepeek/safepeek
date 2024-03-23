@@ -41,7 +41,7 @@ export default class AboutSlashCommand extends SlashCommand {
       },
       {
         name: 'Legal',
-        value: `[Terms of Service](${WEBSITE}/terms) | [Privacy Policy](${WEBSITE}/privacy)`
+        value: `[Terms of Service](${WEBSITE}/legal/terms) | [Privacy Policy](${WEBSITE}/legal/privacy)`
       },
       {
         name: 'Version',
