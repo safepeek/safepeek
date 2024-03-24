@@ -2,6 +2,7 @@
 import { type AnalysisData, AnalyzedUrlRedirect } from '@/types/url';
 
 const fetcher = (url: string) => {
+  // TODO: some urls return a 4xx error. not sure why. need to look into this more
   return fetch(url, {
     headers: {
       'User-Agent':
