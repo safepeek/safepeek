@@ -36,7 +36,10 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
       },
       {
         name: 'Redirects',
-        value: data.input.redirects.map((res) => res.rawUrl).join('\n'),
+        value: data.input.redirects
+          .reverse()
+          .map((res) => res.rawUrl)
+          .join('\n'),
         inline: false
       },
       {

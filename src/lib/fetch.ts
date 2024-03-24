@@ -1,9 +1,10 @@
 // TODO: further handle fetch-related errors
 import { type AnalysisData, AnalyzedUrlRedirect } from '@/types/url';
 
-const fetcher = (url: string) => {
+const fetcher = (url: string, follow?: boolean) => {
   // TODO: some urls return a 4xx error. not sure why. need to look into this more
   return fetch(url, {
+    redirect: follow ? undefined : 'manual',
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36',
@@ -17,28 +18,25 @@ const fetcher = (url: string) => {
 };
 
 export const validateUrl = async (url: string): Promise<boolean> => {
-  const response = await fetcher(url);
+  const response = await fetcher(url, true);
   return response.ok;
 };
 
 const fetchWithRedirects = async (url: string) => {
   let response = await fetcher(url);
   const urls: AnalyzedUrlRedirect[] = [];
-  const metadata = await getMetadata(response);
 
-  while (response.redirected) {
+  while (response.status >= 300 && response.status < 400) {
+    const location = response.headers.get('location');
+    if (!location) break;
+
+    response = await fetcher(location);
     const meta = await getMetadata(response);
     urls.push({
-      rawUrl: response.url,
+      rawUrl: location,
       meta
     });
-    response = await fetcher(response.url);
   }
-
-  urls.push({
-    rawUrl: response.url,
-    meta: metadata
-  });
 
   return urls;
 };
@@ -71,10 +69,10 @@ const getMetadata = async (response: Response) => {
 };
 
 export const fetchUrlData = async (url: string): Promise<AnalysisData> => {
-  const response = await fetcher(url);
+  const response = await fetcher(url, true);
   const sourceUrl = url;
   const destinationUrl = response.url;
-  const redirects = await fetchWithRedirects(destinationUrl);
+  const redirects = await fetchWithRedirects(sourceUrl);
   const { title, description } = await getMetadata(response);
 
   return {
