@@ -1,4 +1,5 @@
 import { BaseSlashCreator, CommandContext, ComponentContext } from 'slash-create/web';
+import he from 'he';
 import { client } from '@/lib/db';
 import { fetchUrlData } from '@/lib/fetch';
 import { createFromAnalyzedUrlData } from '@/lib/db/utils';
@@ -43,4 +44,8 @@ export const truncate = (string: string, maxLength: number): string => {
   } else {
     return string;
   }
+};
+
+export const decode = (encoded: string): string => {
+  return he.decode(encoded);
 };

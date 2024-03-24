@@ -1,6 +1,8 @@
 import { AnalysisData } from '@/types/url';
 import { MessageEmbed } from 'slash-create/web';
 import { EMBED_COLOR } from '@/lib/constants';
+import { decode, truncate } from '@/lib/urls';
+import { oneLine } from 'common-tags';
 
 type ResultEmbedInput = {
   input: AnalysisData;
@@ -8,20 +10,23 @@ type ResultEmbedInput = {
 };
 
 export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
+  const metaTitle = truncate(decode(data.input.title), 256);
+  const metaDescription = truncate(decode(oneLine(data.input.description)), 256);
+
   return {
     type: 'rich',
     title: 'SafePeek Results',
-    description: "Here's what I found about the URL you asked me to analyze:",
+    description: "Here's what I found about the URL you asked me to analyze.",
     color: EMBED_COLOR,
     fields: [
       {
         name: 'Title',
-        value: data.input.title ? data.input.title : 'No title found.',
+        value: data.input.title ? metaTitle : 'No title found.',
         inline: true
       },
       {
         name: 'Description',
-        value: data.input.description ? data.input.description : 'No description found.',
+        value: data.input.description ? metaDescription : 'No description found.',
         inline: true
       },
       {
@@ -36,10 +41,13 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
       },
       {
         name: 'Redirects',
-        value: data.input.redirects
-          .reverse()
-          .map((res) => res.rawUrl)
-          .join('\n'),
+        value:
+          data.input.redirects.length > 0
+            ? data.input.redirects
+                .reverse()
+                .map((res) => res.rawUrl)
+                .join('\n')
+            : 'No redirects.',
         inline: false
       },
       {
