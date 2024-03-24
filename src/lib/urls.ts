@@ -21,11 +21,14 @@ export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResp
   const dbClient = client(props.creator.client);
   await dbClient.connect();
 
-  const id = await createFromAnalyzedUrlData(dbClient, {
-    guildId: props.ctx.guildID ? BigInt(props.ctx.guildID) : null,
-    userId: BigInt(props.ctx.user.id),
-    channelId: BigInt(props.ctx.channelID),
-    redirects: data.redirects
+  const id = await createFromAnalyzedUrlData({
+    dbClient,
+    analyzedUrlData: {
+      guildId: props.ctx.guildID ? BigInt(props.ctx.guildID) : null,
+      userId: BigInt(props.ctx.user.id),
+      channelId: BigInt(props.ctx.channelID),
+      redirects: data.redirects
+    }
   });
 
   // TODO: look into properly running dbClient.end() as the worker process is killed before the rest of the function can run

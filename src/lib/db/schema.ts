@@ -1,5 +1,5 @@
 // credits to "George" (t3ned) on Discord for the contribution to the schema below
-import { pgTable, text, varchar, uniqueIndex, bigint, char, index, foreignKey } from 'drizzle-orm/pg-core';
+import { pgTable, text, varchar, uniqueIndex, bigint, char, index, foreignKey, timestamp } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { ulid } from '@/lib/ulid';
 
@@ -74,12 +74,14 @@ export const analyzedUrlRevisions = pgTable(
     guildId: char('guild_id', { length: ULID_LENGTH }),
     discordChannelId: bigint('discord_channel_id', {
       mode: 'bigint'
-    }).notNull()
+    }).notNull(),
+    insertedAt: timestamp('inserted_at', { withTimezone: true }).defaultNow()
   },
   (columns) => ({
     analyzedUrlIdIdx: index().on(columns.analyzedUrlId),
     userIdIdx: index().on(columns.userId),
     guildIdIdx: index().on(columns.guildId),
+    userIdChannelIdUnqIdx: uniqueIndex().on(columns.userId, columns.discordChannelId),
     analyzedUrlIdFk: foreignKey({
       columns: [columns.analyzedUrlId],
       foreignColumns: [analyzedUrls.id]

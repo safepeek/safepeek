@@ -3,7 +3,7 @@ import { AnalyzedUrl } from '@/types/url';
 import { database, DrizzleClient } from './';
 import { Client } from 'pg';
 import { analyzedUrlResults, analyzedUrlRevisions, analyzedUrls, guilds, users } from './schema';
-import { and, eq, isNull } from 'drizzle-orm';
+import { and, eq, gt, isNull } from 'drizzle-orm';
 
 async function sha256(data: string) {
   const encoder = new TextEncoder();
@@ -95,59 +95,82 @@ async function createAnalyzedUrlRevision(
   discordChannelId: bigint,
   tx: DrizzleClient
 ) {
-  return takeFirstOrThrow(
-    await tx
-      .insert(analyzedUrlRevisions)
-      .values({
-        analyzedUrlId,
-        userId,
-        guildId,
-        discordChannelId
-      })
-      .returning()
-  );
+  const minInsertTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+  const inserted = await tx
+    .select()
+    .from(analyzedUrlRevisions)
+    .where(
+      and(
+        eq(analyzedUrlRevisions.userId, userId),
+        eq(analyzedUrlRevisions.discordChannelId, discordChannelId),
+        gt(analyzedUrlRevisions.insertedAt, minInsertTime)
+      )
+    );
+
+  if (!inserted.length)
+    return takeFirstOrThrow(
+      await tx
+        .insert(analyzedUrlRevisions)
+        .values({
+          analyzedUrlId,
+          userId,
+          guildId,
+          discordChannelId
+        })
+        .returning()
+    );
+
+  return takeFirstOrThrow(inserted);
 }
 
-function createAnalyzedUrlResult(
-  analyzedUrlRevisionId: string,
-  redirectAnalyzedUrlId: string | null,
-  metaTitle: string | null,
-  metaDescription: string | null,
-  tx: DrizzleClient
-) {
-  return tx.insert(analyzedUrlResults).values({
-    analyzedUrlRevisionId,
-    redirectAnalyzedUrlId,
-    metaTitle,
-    metaDescription
+type CreateAnalyzedUrlResultProps = {
+  analyzedUrlRevisionId: string;
+  redirectAnalyzedUrlId: string | null;
+  metaTitle: string;
+  metaDescription: string;
+  tx: DrizzleClient;
+};
+
+async function createAnalyzedUrlResult(props: CreateAnalyzedUrlResultProps) {
+  return props.tx.insert(analyzedUrlResults).values({
+    analyzedUrlRevisionId: props.analyzedUrlRevisionId,
+    redirectAnalyzedUrlId: props.redirectAnalyzedUrlId,
+    metaTitle: props.metaTitle,
+    metaDescription: props.metaDescription
   });
 }
 
 // TODO: look into additional checks to prevent insertion of repeated data. consult more with george on this
-export async function createFromAnalyzedUrlData(dbClient: Client, analyzedUrlData: AnalyzedUrl) {
-  const db = database(dbClient);
+type CreateAnalyzedUrlDataProps = {
+  dbClient: Client;
+  analyzedUrlData: AnalyzedUrl;
+};
+
+export async function createFromAnalyzedUrlData(props: CreateAnalyzedUrlDataProps) {
+  const db = database(props.dbClient);
 
   return db.transaction(async (tx) => {
-    const user = await upsertUser(analyzedUrlData.userId, tx);
-    const guild = analyzedUrlData.guildId ? await upsertGuild(analyzedUrlData.guildId, tx) : { id: null };
+    const user = await upsertUser(props.analyzedUrlData.userId, tx);
+    const guild = props.analyzedUrlData.guildId ? await upsertGuild(props.analyzedUrlData.guildId, tx) : { id: null };
 
     let previousRedirectAnalyzedUrlId: string | null = null;
-    for (const redirect of analyzedUrlData.redirects.reverse()) {
+    for (const redirect of props.analyzedUrlData.redirects.reverse()) {
       const analyzedUrl = await upsertAnalyzedUrl(redirect.rawUrl, tx);
       const analyzedUrlRevision = await createAnalyzedUrlRevision(
         analyzedUrl.id,
         user.id,
         guild.id,
-        analyzedUrlData.channelId,
+        props.analyzedUrlData.channelId,
         tx
       );
-      await createAnalyzedUrlResult(
-        analyzedUrlRevision.id,
-        previousRedirectAnalyzedUrlId,
-        redirect.meta.title,
-        redirect.meta.description,
+      await createAnalyzedUrlResult({
+        analyzedUrlRevisionId: analyzedUrlRevision.id,
+        redirectAnalyzedUrlId: previousRedirectAnalyzedUrlId,
+        metaTitle: redirect.meta.title,
+        metaDescription: redirect.meta.description,
         tx
-      );
+      });
 
       previousRedirectAnalyzedUrlId = analyzedUrl.id;
     }
