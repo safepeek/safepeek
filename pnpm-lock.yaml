@@ -14,6 +14,9 @@ dependencies:
   extract-urls:
     specifier: ^1.4.0
     version: 1.4.0
+  he:
+    specifier: ^1.2.0
+    version: 1.2.0
   pg:
     specifier: ^8.11.3
     version: 8.11.3
@@ -25,6 +28,9 @@ devDependencies:
   '@types/common-tags':
     specifier: ^1.8.4
     version: 1.8.4
+  '@types/he':
+    specifier: ^1.2.3
+    version: 1.2.3
   '@types/node':
     specifier: ^20.11.22
     version: 20.11.22
@@ -893,6 +899,10 @@ packages:
 
   /@types/common-tags@1.8.4:
     resolution: {integrity: sha512-S+1hLDJPjWNDhcGxsxEbepzaxWqURP/o+3cP4aa2w7yBXgdcmKGQtZzP8JbyfOd0m+33nh+8+kvxYE2UJtBDkg==}
+    dev: true
+
+  /@types/he@1.2.3:
+    resolution: {integrity: sha512-q67/qwlxblDzEDvzHhVkwc1gzVWxaNxeyHUBF4xElrvjL11O+Ytze+1fGpBHlr/H9myiBUaUXNnNPmBHxxfAcA==}
     dev: true
 
   /@types/json-schema@7.0.15:
@@ -1954,6 +1964,11 @@ packages:
     dependencies:
       function-bind: 1.1.2
     dev: true
+
+  /he@1.2.0:
+    resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
+    hasBin: true
+    dev: false
 
   /heap@0.2.7:
     resolution: {integrity: sha512-2bsegYkkHO+h/9MGbn6KWcE45cHZgPANo5LXF7EvWdT0yT2EguSVO1nDgU5c8+ZOPwp2vMNa7YFsJhVcDR9Sdg==}
