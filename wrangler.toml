@@ -6,3 +6,6 @@ node_compat = true
 vars = { NODE_ENV = "production" }
 
 [env.development]
+
+[placement]
+mode = "smart"
