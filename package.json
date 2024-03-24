@@ -13,7 +13,10 @@
     "lint:fix": "eslint --ext .ts . --fix",
     "db:generate": "drizzle-kit generate:pg",
     "db:push": "drizzle-kit push:pg",
-    "db:migrate": "tsx src/lib/db/migrate.ts"
+    "db:push:dev": "drizzle-kit push:pg --config drizzle.config.dev.ts",
+    "db:migrate": "tsx src/lib/db/migrate.ts",
+    "db:migrate:dev": "tsx src/lib/db/migrate.ts --config drizzle.config.dev.ts",
+    "db:studio:dev": "drizzle-kit studio --config drizzle.config.dev.ts"
   },
   "repository": {
     "type": "git",
