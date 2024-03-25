@@ -49,10 +49,12 @@
     "slash-create": "^6.0.2",
     "slash-up": "^1.4.2",
     "tsx": "^4.7.1",
+    "typescript": "^5.4.3",
     "wrangler": "^3.29.0"
   },
   "dependencies": {
     "common-tags": "^1.8.2",
+    "discord-api-types": "^0.37.76",
     "drizzle-orm": "^0.29.4",
     "extract-urls": "^1.4.0",
     "he": "^1.2.0",
