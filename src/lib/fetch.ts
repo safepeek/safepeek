@@ -3,8 +3,9 @@ import { type AnalysisData, AnalyzedUrlRedirect } from '@/types/url';
 
 const fetcher = (url: string, follow?: boolean) => {
   // TODO: some urls return a 4xx error. not sure why. need to look into this more
+  // TODO: some urls return a 429 too many redirects error. has to do with cloudflare workers
   return fetch(url, {
-    redirect: follow ? undefined : 'manual',
+    redirect: follow ? 'follow' : 'manual',
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36',
