@@ -13,14 +13,15 @@ export default class AnalyzeSlashCommand extends SlashCommand {
         {
           type: CommandOptionType.STRING,
           name: 'url',
-          description: 'The URL to analyze.'
+          description: 'The URL to analyze.',
+          required: true
         }
       ]
     });
   }
 
   async onError(err: Error, ctx: CommandContext) {
-    return ctx.send({ content: 'Check console for error', ephemeral: true });
+    return ctx.send({ content: 'An error occurred running this command.', ephemeral: true });
   }
 
   async run(ctx: CommandContext) {
@@ -31,13 +32,18 @@ export default class AnalyzeSlashCommand extends SlashCommand {
 
     const url = urls[0];
     const validUrl = await validateUrl(url);
-    if (!validUrl) return ctx.editOriginal(`The following URL has no response: \`${url}\``);
+    if (!validUrl) return ctx.editOriginal(`The following URL had an invalid response: \`${url}\``);
 
-    const data = await analyzeUrl({
-      creator: this.creator,
-      ctx,
-      url: urls![0]
-    });
+    let data;
+    try {
+      data = await analyzeUrl({
+        creator: this.creator,
+        ctx,
+        url: urls![0]
+      });
+    } catch (e: any) {
+      return ctx.editOriginal(`An error occurred analyzing the URL: \`${url}\``);
+    }
 
     const embed = resultEmbedBuilder({
       input: data.data,

@@ -17,6 +17,10 @@ export default class AboutSlashCommand extends SlashCommand {
     });
   }
 
+  async onError(err: Error, ctx: CommandContext) {
+    return ctx.send({ content: 'An error occurred running this command.', ephemeral: true });
+  }
+
   async run(ctx: CommandContext) {
     const date = new Date();
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;

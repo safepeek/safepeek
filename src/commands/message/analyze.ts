@@ -23,7 +23,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   }
 
   async onError(err: Error, ctx: CommandContext) {
-    return ctx.send({ content: 'Check console for error', ephemeral: true });
+    return ctx.send({ content: 'An error occurred running this command.', ephemeral: true });
   }
 
   async run(ctx: CommandContext) {
@@ -126,13 +126,18 @@ export default class AnalyzeMessageCommand extends SlashCommand {
       });
 
       const validUrl = await validateUrl(selectedUrl);
-      if (!validUrl) return btnCtx.editOriginal(`The following URL has no response: \`${selectedUrl}\``);
+      if (!validUrl) return btnCtx.editOriginal(`The following URL had an invalid response: \`${selectedUrl}\``);
 
-      const data = await analyzeUrl({
-        creator: this.creator,
-        ctx: btnCtx,
-        url: selectedUrl
-      });
+      let data;
+      try {
+        data = await analyzeUrl({
+          creator: this.creator,
+          ctx: btnCtx,
+          url: selectedUrl
+        });
+      } catch (e: any) {
+        return btnCtx.editOriginal(`An error occurred analyzing the URL: \`${selectedUrl}\``);
+      }
 
       const embed = resultEmbedBuilder({
         input: data.data,
