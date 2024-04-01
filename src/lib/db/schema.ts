@@ -61,7 +61,6 @@ export const analyzedUrlsRelations = relations(analyzedUrls, ({ many }) => ({
   analyzedUrlResults: many(analyzedUrlResults)
 }));
 
-// TODO: add unique constraint on userId and channelId. only insert after x time
 export const analyzedUrlRevisions = pgTable(
   'analyzed_url_revisions',
   {
@@ -81,7 +80,8 @@ export const analyzedUrlRevisions = pgTable(
     analyzedUrlIdIdx: index().on(columns.analyzedUrlId),
     userIdIdx: index().on(columns.userId),
     guildIdIdx: index().on(columns.guildId),
-    userIdChannelIdUnqIdx: uniqueIndex().on(columns.userId, columns.discordChannelId),
+    // TODO: removing this to see if there's a better way to implement with time contstraint
+    // userIdChannelIdUnqIdx: uniqueIndex().on(columns.userId, columns.discordChannelId),
     analyzedUrlIdFk: foreignKey({
       columns: [columns.analyzedUrlId],
       foreignColumns: [analyzedUrls.id]
@@ -133,7 +133,8 @@ export const analyzedUrlResults = pgTable(
       length: ULID_LENGTH
     }),
     metaTitle: text('meta_title'),
-    metaDescription: text('meta_description')
+    metaDescription: text('meta_description'),
+    insertedAt: timestamp('inserted_at', { withTimezone: true }).defaultNow()
   },
   (columns) => ({
     analyzedUrlRevisionIdIdx: index().on(columns.analyzedUrlRevisionId),

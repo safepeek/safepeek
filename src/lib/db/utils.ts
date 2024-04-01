@@ -3,7 +3,7 @@ import { AnalyzedUrl } from '@/types/url';
 import { database, DrizzleClient } from './';
 import { Client } from 'pg';
 import { analyzedUrlResults, analyzedUrlRevisions, analyzedUrls, guilds, users } from './schema';
-import { and, eq, gt, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 
 async function sha256(data: string) {
   const encoder = new TextEncoder();
@@ -95,36 +95,21 @@ async function createAnalyzedUrlRevision(
   discordChannelId: bigint,
   tx: DrizzleClient
 ) {
-  const minInsertTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
-
-  const inserted = await tx
-    .select()
-    .from(analyzedUrlRevisions)
-    .where(
-      and(
-        eq(analyzedUrlRevisions.userId, userId),
-        eq(analyzedUrlRevisions.discordChannelId, discordChannelId),
-        gt(analyzedUrlRevisions.insertedAt, minInsertTime)
-      )
-    );
-
-  if (!inserted.length)
-    return takeFirstOrThrow(
-      await tx
-        .insert(analyzedUrlRevisions)
-        .values({
-          analyzedUrlId,
-          userId,
-          guildId,
-          discordChannelId
-        })
-        .returning()
-    );
-
-  return takeFirstOrThrow(inserted);
+  return takeFirstOrThrow(
+    await tx
+      .insert(analyzedUrlRevisions)
+      .values({
+        analyzedUrlId,
+        userId,
+        guildId,
+        discordChannelId
+      })
+      .returning()
+  );
 }
 
 type CreateAnalyzedUrlResultProps = {
+  analyzedUrlId: string;
   analyzedUrlRevisionId: string;
   redirectAnalyzedUrlId: string | null;
   metaTitle: string;
@@ -133,15 +118,33 @@ type CreateAnalyzedUrlResultProps = {
 };
 
 async function createAnalyzedUrlResult(props: CreateAnalyzedUrlResultProps) {
-  return props.tx.insert(analyzedUrlResults).values({
-    analyzedUrlRevisionId: props.analyzedUrlRevisionId,
-    redirectAnalyzedUrlId: props.redirectAnalyzedUrlId,
-    metaTitle: props.metaTitle,
-    metaDescription: props.metaDescription
+  const minInsertTime = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days ago
+
+  const inserted = await props.tx.query.analyzedUrlRevisions.findFirst({
+    where: (revisions, { eq }) => eq(revisions.analyzedUrlId, props.analyzedUrlId),
+    with: {
+      analyzedUrlResults: {
+        where: (results, { gt }) => gt(results.insertedAt, minInsertTime)
+      }
+    }
   });
+
+  if (!inserted?.analyzedUrlResults.length)
+    return takeFirstOrThrow(
+      await props.tx
+        .insert(analyzedUrlResults)
+        .values({
+          analyzedUrlRevisionId: props.analyzedUrlRevisionId,
+          redirectAnalyzedUrlId: props.redirectAnalyzedUrlId,
+          metaTitle: props.metaTitle,
+          metaDescription: props.metaDescription
+        })
+        .returning()
+    );
+
+  return inserted;
 }
 
-// TODO: look into additional checks to prevent insertion of repeated data. consult more with george on this
 type CreateAnalyzedUrlDataProps = {
   dbClient: Client;
   analyzedUrlData: AnalyzedUrl;
@@ -165,6 +168,7 @@ export async function createFromAnalyzedUrlData(props: CreateAnalyzedUrlDataProp
         tx
       );
       await createAnalyzedUrlResult({
+        analyzedUrlId: analyzedUrl.id,
         analyzedUrlRevisionId: analyzedUrlRevision.id,
         redirectAnalyzedUrlId: previousRedirectAnalyzedUrlId,
         metaTitle: redirect.meta.title,
