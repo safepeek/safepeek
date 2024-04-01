@@ -1,4 +1,14 @@
-import { CommandContext, EmbedField, MessageEmbed, SlashCommand, SlashCreator } from 'slash-create/web';
+import {
+  CommandContext,
+  EmbedField,
+  MessageEmbed,
+  SlashCommand,
+  SlashCreator,
+  ApplicationIntegrationType,
+  CommandOptionType,
+  InteractionContextType
+} from 'slash-create/web';
+
 import {
   APP_DESCRIPTION,
   APP_GITHUB,
@@ -9,11 +19,25 @@ import {
   WEBSITE
 } from '@/lib/constants';
 
+type OptionTypes = {
+  ephemeral: boolean | undefined;
+};
+
 export default class AboutSlashCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'about',
-      description: 'Get information about the bot.'
+      description: 'Get information about the bot.',
+      options: [
+        {
+          type: CommandOptionType.BOOLEAN,
+          name: 'ephemeral',
+          description: 'Choose if the command should be ephemeral or not (true by default)',
+          required: false
+        }
+      ],
+      integrationTypes: [ApplicationIntegrationType.GUILD_INSTALL, ApplicationIntegrationType.USER_INSTALL],
+      contexts: [InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL, InteractionContextType.BOT_DM]
     });
   }
 
@@ -22,6 +46,9 @@ export default class AboutSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const options = ctx.options as OptionTypes;
+    const ephemeral = options.ephemeral ?? true;
+
     const date = new Date();
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;
     const COMMIT_HASH_SHORT = this.creator.client.LAST_COMMIT_SHORT;
@@ -67,7 +94,7 @@ export default class AboutSlashCommand extends SlashCommand {
 
     return ctx.send({
       embeds: [embed],
-      ephemeral: true
+      ephemeral
     });
   }
 }

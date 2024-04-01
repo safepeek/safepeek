@@ -1,8 +1,21 @@
-import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from 'slash-create/web';
+import {
+  CommandContext,
+  CommandOptionType,
+  SlashCommand,
+  SlashCreator,
+  ApplicationIntegrationType,
+  InteractionContextType
+} from 'slash-create/web';
 import extractUrls from 'extract-urls';
+
 import { resultEmbedBuilder } from '@/ui';
 import { validateUrl } from '@/lib/fetch';
 import { analyzeUrl } from '@/lib/urls';
+
+type OptionTypes = {
+  url: string;
+  ephemeral: boolean | undefined;
+};
 
 export default class AnalyzeSlashCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -15,8 +28,16 @@ export default class AnalyzeSlashCommand extends SlashCommand {
           name: 'url',
           description: 'The URL to analyze.',
           required: true
+        },
+        {
+          type: CommandOptionType.BOOLEAN,
+          name: 'ephemeral',
+          description: 'Choose if the command should be ephemeral or not (true by default)',
+          required: false
         }
-      ]
+      ],
+      integrationTypes: [ApplicationIntegrationType.GUILD_INSTALL, ApplicationIntegrationType.USER_INSTALL],
+      contexts: [InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL, InteractionContextType.BOT_DM]
     });
   }
 
@@ -25,7 +46,10 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    await ctx.defer(true);
+    const options = ctx.options as OptionTypes;
+    const ephemeral = options.ephemeral ?? true;
+
+    await ctx.defer(ephemeral);
 
     const urls = extractUrls(ctx.options.url as string);
     if (!urls) return ctx.editOriginal({ content: `The provided URL \`${ctx.options.url}\` was invalid.` });
@@ -42,7 +66,8 @@ export default class AnalyzeSlashCommand extends SlashCommand {
         url: urls![0]
       });
     } catch (e: any) {
-      return ctx.editOriginal(`An error occurred analyzing the URL: \`${url}\``);
+      console.error(e);
+      return ctx.send({ content: `An error occurred analyzing the URL: \`${url}\``, ephemeral: true });
     }
 
     const embed = resultEmbedBuilder({
@@ -51,7 +76,6 @@ export default class AnalyzeSlashCommand extends SlashCommand {
     });
 
     return ctx.editOriginal({
-      content: `\`${data.id}\``,
       embeds: [embed]
     });
   }

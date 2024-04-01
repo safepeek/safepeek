@@ -1,14 +1,36 @@
-import { CommandContext, MessageEmbed, SlashCommand, SlashCreator } from 'slash-create/web';
+import {
+  CommandContext,
+  MessageEmbed,
+  SlashCommand,
+  SlashCreator,
+  ApplicationIntegrationType,
+  CommandOptionType,
+  InteractionContextType
+} from 'slash-create/web';
 import { APIApplication } from 'discord-api-types/v10';
 
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
 
+type OptionTypes = {
+  ephemeral: boolean | undefined;
+};
+
 export default class StatsSlashCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'stats',
-      description: 'Get stats about the bot.'
+      description: 'Get stats about the bot.',
+      options: [
+        {
+          type: CommandOptionType.BOOLEAN,
+          name: 'ephemeral',
+          description: 'Choose if the command should be ephemeral or not (true by default)',
+          required: false
+        }
+      ],
+      integrationTypes: [ApplicationIntegrationType.GUILD_INSTALL, ApplicationIntegrationType.USER_INSTALL],
+      contexts: [InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL, InteractionContextType.BOT_DM]
     });
   }
 
@@ -17,6 +39,9 @@ export default class StatsSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const options = ctx.options as OptionTypes;
+    const ephemeral = options.ephemeral ?? true;
+
     const appInfo = await ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', {
       auth: true
     });
@@ -67,7 +92,7 @@ export default class StatsSlashCommand extends SlashCommand {
 
     return ctx.send({
       embeds: [embed],
-      ephemeral: true
+      ephemeral
     });
   }
 }

@@ -1,5 +1,3 @@
-import extractUrls from 'extract-urls';
-
 import {
   ApplicationCommandType,
   CommandContext,
@@ -8,8 +6,12 @@ import {
   ComponentType,
   Message,
   SlashCommand,
-  SlashCreator
+  SlashCreator,
+  ApplicationIntegrationType,
+  InteractionContextType
 } from 'slash-create/web';
+import extractUrls from 'extract-urls';
+
 import { cancelButton, jumpToMessageButton, resultEmbedBuilder, urlButtons, urlSelectComponent } from '@/ui';
 import { validateUrl } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
@@ -18,7 +20,9 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
     super(creator, {
       name: 'Analyze',
-      type: ApplicationCommandType.MESSAGE
+      type: ApplicationCommandType.MESSAGE,
+      integrationTypes: [ApplicationIntegrationType.GUILD_INSTALL, ApplicationIntegrationType.USER_INSTALL],
+      contexts: [InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL, InteractionContextType.BOT_DM]
     });
   }
 
