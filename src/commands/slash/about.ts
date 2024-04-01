@@ -18,6 +18,7 @@ import {
   EMBED_COLOR,
   WEBSITE
 } from '@/lib/constants';
+import { getUserProfile } from '@/lib/db/utils';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -46,8 +47,13 @@ export default class AboutSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const userProfile = await getUserProfile({
+      creator: this.creator,
+      ctx
+    });
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? userProfile.ephemeral ?? true;
 
     const date = new Date();
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;

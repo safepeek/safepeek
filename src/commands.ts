@@ -5,5 +5,6 @@ export const commands = [
   require('./commands/slash/about'),
   require('./commands/slash/invite'),
   require('./commands/slash/support'),
-  require('./commands/slash/stats')
+  require('./commands/slash/stats'),
+  require('./commands/slash/profile')
 ];

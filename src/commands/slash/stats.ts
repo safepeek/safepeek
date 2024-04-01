@@ -11,6 +11,7 @@ import { APIApplication } from 'discord-api-types/v10';
 
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
+import { getUserProfile } from '@/lib/db/utils';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -39,8 +40,13 @@ export default class StatsSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const userProfile = await getUserProfile({
+      creator: this.creator,
+      ctx
+    });
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? userProfile.ephemeral ?? true;
 
     const appInfo = await ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', {
       auth: true

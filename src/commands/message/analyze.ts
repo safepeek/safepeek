@@ -15,6 +15,7 @@ import extractUrls from 'extract-urls';
 import { cancelButton, jumpToMessageButton, resultEmbedBuilder, urlButtons, urlSelectComponent } from '@/ui';
 import { validateUrl } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
+import { getUserProfile } from '@/lib/db/utils';
 
 export default class AnalyzeMessageCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -31,7 +32,14 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    await ctx.defer(true);
+    const userProfile = await getUserProfile({
+      creator: this.creator,
+      ctx
+    });
+
+    const ephemeral = userProfile.ephemeral ?? true;
+
+    await ctx.defer(ephemeral);
 
     const messageContent = ctx.targetMessage!.content;
     const urls = [...new Set(extractUrls(messageContent))];

@@ -8,6 +8,7 @@ import {
 } from 'slash-create/web';
 
 import { BOT_INVITE } from '@/lib/constants';
+import { getUserProfile } from '@/lib/db/utils';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -32,8 +33,13 @@ export default class InviteSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const userProfile = await getUserProfile({
+      creator: this.creator,
+      ctx
+    });
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? userProfile.ephemeral ?? true;
 
     return ctx.send({
       content: BOT_INVITE,

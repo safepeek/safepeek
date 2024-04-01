@@ -6,6 +6,7 @@ import {
   CommandOptionType,
   InteractionContextType
 } from 'slash-create/web';
+import { getUserProfile } from '@/lib/db/utils';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -30,8 +31,13 @@ export default class PingSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const profile = await getUserProfile({
+      creator: this.creator,
+      ctx
+    });
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? profile.ephemeral ?? true;
 
     return ctx.send({
       content: 'Pong!',

@@ -11,6 +11,7 @@ import extractUrls from 'extract-urls';
 import { resultEmbedBuilder } from '@/ui';
 import { validateUrl } from '@/lib/fetch';
 import { analyzeUrl } from '@/lib/urls';
+import { getUserProfile } from '@/lib/db/utils';
 
 type OptionTypes = {
   url: string;
@@ -46,8 +47,13 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
+    const userProfile = await getUserProfile({
+      creator: this.creator,
+      ctx
+    });
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? userProfile.ephemeral ?? true;
 
     await ctx.defer(ephemeral);
 

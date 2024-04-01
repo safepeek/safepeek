@@ -2,6 +2,7 @@
 import { pgTable, text, varchar, uniqueIndex, bigint, char, index, foreignKey, timestamp } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { ulid } from '@/lib/ulid';
+import { boolean } from 'drizzle-orm/pg-core/columns/boolean';
 
 const ULID_LENGTH = 26;
 
@@ -28,7 +29,8 @@ export const users = pgTable(
     id: char('id', { length: ULID_LENGTH })
       .$default(() => ulid())
       .primaryKey(),
-    discordId: bigint('discord_id', { mode: 'bigint' }).notNull()
+    discordId: bigint('discord_id', { mode: 'bigint' }).notNull(),
+    ephemeral: boolean('ephemeral').default(true)
   },
   (columns) => ({
     discordIdUnqIdx: uniqueIndex().on(columns.discordId)

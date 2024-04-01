@@ -1,9 +1,11 @@
 // credits to "George" (t3ned) on Discord for the contribution to most of the functions below
 import { AnalyzedUrl } from '@/types/url';
-import { database, DrizzleClient } from './';
+import { client, database, DrizzleClient } from './';
 import { Client } from 'pg';
 import { analyzedUrlResults, analyzedUrlRevisions, analyzedUrls, guilds, users } from './schema';
 import { and, eq, isNull } from 'drizzle-orm';
+import { BaseSlashCreator } from 'slash-create/lib/creator';
+import { CommandContext } from 'slash-create/lib/structures/interfaces/commandContext';
 
 async function sha256(data: string) {
   const encoder = new TextEncoder();
@@ -145,6 +147,28 @@ async function createAnalyzedUrlResult(props: CreateAnalyzedUrlResultProps) {
   return inserted;
 }
 
+export type ProfileData = {
+  discordUserId: bigint | string;
+  data: {
+    ephemeral: boolean;
+  };
+};
+
+type UpdateProfileDataProps = {
+  dbClient: Client;
+  data: ProfileData;
+};
+
+export async function updateProfileData(props: UpdateProfileDataProps) {
+  const db = database(props.dbClient);
+
+  return db
+    .update(users)
+    .set(props.data.data)
+    .where(eq(users.discordId, props.data.discordUserId as bigint))
+    .returning();
+}
+
 type CreateAnalyzedUrlDataProps = {
   dbClient: Client;
   analyzedUrlData: AnalyzedUrl;
@@ -181,4 +205,43 @@ export async function createFromAnalyzedUrlData(props: CreateAnalyzedUrlDataProp
 
     return previousRedirectAnalyzedUrlId!;
   });
+}
+
+type GetUserProfileProps = {
+  creator: BaseSlashCreator;
+  ctx: CommandContext;
+};
+
+export async function getUserProfile(props: GetUserProfileProps) {
+  const dbClient = client(props.creator.client);
+  await dbClient.connect();
+  const db = database(dbClient);
+
+  return db.transaction((tx) => {
+    return upsertUser(BigInt(props.ctx.user.id), tx);
+  });
+}
+
+type UpdateUserProfileProps = GetUserProfileProps & {
+  data: ProfileData;
+};
+
+type UpdateUserProfileResponse = {
+  data: ProfileData;
+  id: string;
+};
+
+export async function updateUserProfile(props: UpdateUserProfileProps): Promise<UpdateUserProfileResponse> {
+  const dbClient = client(props.creator.client);
+  await dbClient.connect();
+
+  const [data] = await updateProfileData({
+    dbClient,
+    data: props.data
+  });
+
+  // TODO: look into properly running dbClient.end() as the worker process is killed before the rest of the function can run
+  // await dbClient.end();
+
+  return { data: props.data, id: data.id };
 }
