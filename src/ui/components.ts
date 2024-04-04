@@ -31,6 +31,16 @@ export const analyzeButton: AnyComponentButton = {
   }
 };
 
+export const safetyCheckButton: AnyComponentButton = {
+  type: ComponentType.BUTTON,
+  style: ButtonStyle.SECONDARY,
+  label: 'Safety Check',
+  custom_id: 'safety_check_button',
+  emoji: {
+    name: '🚨'
+  }
+};
+
 export const cancelButton: AnyComponentButton = {
   type: ComponentType.BUTTON,
   style: ButtonStyle.DESTRUCTIVE,

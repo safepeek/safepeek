@@ -1,21 +1,36 @@
 import {
+  AnyComponentButton,
   ApplicationCommandType,
+  ApplicationIntegrationType,
   CommandContext,
+  ComponentActionRow,
+  ComponentButton,
   ComponentContext,
   ComponentSelectOption,
   ComponentType,
+  InteractionContextType,
   Message,
   SlashCommand,
-  SlashCreator,
-  ApplicationIntegrationType,
-  InteractionContextType
+  SlashCreator
 } from 'slash-create/web';
 import extractUrls from 'extract-urls';
 
-import { cancelButton, jumpToMessageButton, resultEmbedBuilder, urlButtons, urlSelectComponent } from '@/ui';
-import { validateUrl } from '@/lib/fetch';
+import {
+  cancelButton,
+  jumpToMessageButton,
+  resultEmbedBuilder,
+  safetyCheckButton,
+  threatEmbedBuilder,
+  threatEmbedNoHits,
+  urlButtons,
+  urlSelectComponent
+} from '@/ui';
+import { fetchUrlData, validateUrl } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
 import { getUserProfile } from '@/lib/db/utils';
+import { AnalysisData } from '@/types/url';
+import { ThreatMatchResponse } from '@/types/google';
+import { checkUrlsForThreats } from '@/lib/google';
 
 export default class AnalyzeMessageCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -82,11 +97,11 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     ctx.registerComponent('url_select', async (selectCtx) => {
-      return this.handleUrl(selectCtx, ctx.targetMessage!);
+      return this.handleUrl(selectCtx, ctx.targetMessage!, ephemeral);
     });
   }
 
-  private async handleUrl(ctx: ComponentContext, targetMessage: Message) {
+  private async handleUrl(ctx: ComponentContext, targetMessage: Message, ephemeral: boolean) {
     const selectedUrl = ctx.values[0];
 
     const component = urlSelectComponent;
@@ -172,10 +187,66 @@ export default class AnalyzeMessageCommand extends SlashCommand {
                 channelId: targetMessage.channelID,
                 messageId: targetMessage.id
               }),
+              safetyCheckButton,
               cancelButton
             ]
           }
         ]
+      });
+    });
+
+    ctx.registerComponent('safety_check_button', async (btnCtx) => {
+      let data: AnalysisData, threatData: ThreatMatchResponse;
+      try {
+        data = await fetchUrlData(selectedUrl);
+        threatData = await checkUrlsForThreats({
+          apiKey: this.creator.client.GOOGLE_API_KEY,
+          urls: [data.destinationUrl]
+        });
+      } catch (e: any) {
+        if (e === 'NO_MATCHES_FOUND') {
+          // we should disable the button if no matches are found to prevent frequent checks
+          const components = btnCtx.message.components as ComponentActionRow[];
+          const safetyCheckBtn = ((components[1] as ComponentActionRow).components as AnyComponentButton[]).find(
+            (c) => (c as ComponentButton).custom_id === 'safety_check_button'
+          );
+          safetyCheckBtn!.disabled = true;
+
+          await btnCtx.editOriginal({
+            components
+          });
+
+          return ctx.send({
+            embeds: [threatEmbedNoHits()],
+            ephemeral
+          });
+        }
+
+        console.error(e);
+        return ctx.send({ content: `An error occurred analyzing the URL: \`${selectedUrl}\``, ephemeral: true });
+      }
+
+      const embed = threatEmbedBuilder({
+        input: data,
+        threatData
+      });
+
+      return ctx.send({
+        embeds: [embed],
+        components: [
+          {
+            type: ComponentType.ACTION_ROW,
+            components: [
+              jumpToMessageButton({
+                guildId: ctx.guildID!,
+                channelId: targetMessage.channelID,
+                messageId: targetMessage.id
+              }),
+              cancelButton
+            ]
+          }
+        ],
+        ephemeral
       });
     });
 

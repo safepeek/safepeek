@@ -3,6 +3,39 @@ import { MessageEmbed } from 'slash-create/web';
 import { EMBED_COLOR } from '@/lib/constants';
 import { decode, truncate } from '@/lib/urls';
 import { oneLine } from 'common-tags';
+import { ThreatMatchResponse } from '@/types/google';
+
+type ThreatEmbedInput = {
+  input: AnalysisData;
+  threatData: ThreatMatchResponse;
+};
+
+export const threatEmbedBuilder = (data: ThreatEmbedInput): MessageEmbed => {
+  return {
+    type: 'rich',
+    title: 'SafePeek Threat Analysis',
+    description: "Here's what the Google Safe Browsing API provided about the URL.",
+    color: EMBED_COLOR,
+    fields: data.threatData.matches.map((match) => ({
+      name: 'Threat Information',
+      value: JSON.stringify(match, null, 2)
+    })),
+    footer: {
+      text: 'Google works to provide the most accurate and up-to-date information about unsafe web resources. However, Google cannot guarantee that its information is comprehensive and error-free: some risky sites may not be identified, and some safe sites may be identified in error.'
+    }
+  };
+};
+
+export const threatEmbedNoHits = (): MessageEmbed => {
+  return {
+    type: 'rich',
+    description: 'The destination URL analyzed appears to safe, but always proceed with caution!',
+    color: EMBED_COLOR,
+    footer: {
+      text: 'Google works to provide the most accurate and up-to-date information about unsafe web resources. However, Google cannot guarantee that its information is comprehensive and error-free: some risky sites may not be identified, and some safe sites may be identified in error.'
+    }
+  };
+};
 
 type ResultEmbedInput = {
   input: AnalysisData;

@@ -12,6 +12,7 @@ module.exports = {
     DEVELOPMENT_GUILD_ID: true,
     POSTGRES_URL: true,
     NODE_ENV: true,
+    GOOGLE_API_KEY: true,
     LAST_COMMIT: true,
     LAST_COMMIT_SHORT: true
   },
