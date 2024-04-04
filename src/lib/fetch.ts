@@ -25,6 +25,7 @@ export const validateUrl = async (url: string): Promise<boolean> => {
 
 const fetchWithRedirects = async (url: string) => {
   let response = await fetcher(url);
+  const metadata = await getMetadata(response);
   const urls: AnalyzedUrlRedirect[] = [];
 
   while (response.status >= 300 && response.status < 400) {
@@ -38,6 +39,11 @@ const fetchWithRedirects = async (url: string) => {
       meta
     });
   }
+
+  urls.push({
+    rawUrl: response.url,
+    meta: metadata
+  });
 
   return urls;
 };
