@@ -75,7 +75,7 @@ export default class ProfileSlashCommand extends SlashCommand {
 
       return ctx.send({
         embeds: [embed],
-        ephemeral: ephemeral ?? true
+        ephemeral: true
       });
     }
 
@@ -100,7 +100,7 @@ export default class ProfileSlashCommand extends SlashCommand {
 
     return ctx.send({
       embeds: [embed],
-      ephemeral: ephemeral ?? true
+      ephemeral: true
     });
   }
 }
