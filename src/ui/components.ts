@@ -7,7 +7,7 @@ import {
 } from 'slash-create/web';
 
 type DiscordMessageUrlData = {
-  guildId: string;
+  guildId?: string;
   channelId: string;
   messageId: string;
 };
@@ -57,5 +57,5 @@ export const jumpToMessageButton = (data: DiscordMessageUrlData): ComponentButto
   type: ComponentType.BUTTON,
   style: ButtonStyle.LINK,
   label: 'Message',
-  url: `https://discord.com/channels/${data.guildId}/${data.channelId}/${data.messageId}`
+  url: `https://discord.com/channels/${data.guildId ?? '@me'}/${data.channelId}/${data.messageId}`
 });

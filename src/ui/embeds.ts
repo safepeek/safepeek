@@ -18,22 +18,26 @@ export const threatEmbedBuilder = (data: ThreatEmbedInput): MessageEmbed => {
     color: EMBED_COLOR,
     fields: data.threatData.matches.map((match) => ({
       name: 'Threat Information',
-      value: JSON.stringify(match, null, 2)
+      value: `\`\`\`${JSON.stringify(match, null, 2)}\`\`\``
     })),
     footer: {
       text: 'Google works to provide the most accurate and up-to-date information about unsafe web resources. However, Google cannot guarantee that its information is comprehensive and error-free: some risky sites may not be identified, and some safe sites may be identified in error.'
-    }
+    },
+    timestamp: new Date()
   };
 };
 
 export const threatEmbedNoHits = (): MessageEmbed => {
   return {
     type: 'rich',
-    description: 'The destination URL analyzed appears to safe, but always proceed with caution!',
+    title: 'SafePeek Threat Analysis',
+    description:
+      'The website has been checked against known security threats and no issues were found. However, please remain cautious as new threats emerge constantly, and not all risks may be known at the time of this check.',
     color: EMBED_COLOR,
     footer: {
       text: 'Google works to provide the most accurate and up-to-date information about unsafe web resources. However, Google cannot guarantee that its information is comprehensive and error-free: some risky sites may not be identified, and some safe sites may be identified in error.'
-    }
+    },
+    timestamp: new Date()
   };
 };
 
