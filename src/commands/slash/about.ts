@@ -1,6 +1,5 @@
 import {
   CommandContext,
-  EmbedField,
   MessageEmbed,
   SlashCommand,
   SlashCreator,
@@ -15,6 +14,7 @@ import {
   APP_NAME,
   APP_VERSION,
   DISCORD_INVITE,
+  DISCORD_INVITE_CODE,
   EMBED_COLOR,
   WEBSITE
 } from '@/lib/constants';
@@ -59,39 +59,43 @@ export default class AboutSlashCommand extends SlashCommand {
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;
     const COMMIT_HASH_SHORT = this.creator.client.LAST_COMMIT_SHORT;
 
-    const fields: EmbedField[] = [
-      {
-        name: 'Bot Author',
-        value: 'Anthony Collier (acollierr17)'
-      },
-      {
-        name: 'Website',
-        value: `[safepeek.org](${WEBSITE})`
-      },
-      {
-        name: 'Discord',
-        value: DISCORD_INVITE
-      },
-      {
-        name: 'GitHub',
-        value: `[github.com/safepeek/safepeek](${APP_GITHUB})`
-      },
-      {
-        name: 'Legal',
-        value: `[Terms of Service](${WEBSITE}/legal/terms) | [Privacy Policy](${WEBSITE}/legal/privacy)`
-      },
-      {
-        name: 'Version',
-        value: `${APP_VERSION} [\`[${COMMIT_HASH_SHORT}]\`](${APP_GITHUB}/commit/${COMMIT_HASH})`
-      }
-    ].map((field) => ({ ...field, inline: true }));
-
     const embed: MessageEmbed = {
       type: 'rich',
       title: APP_NAME,
       description: APP_DESCRIPTION,
       color: EMBED_COLOR,
-      fields,
+      fields: [
+        {
+          name: 'Bot Author',
+          value: 'Anthony Collier (acollierr17)',
+          inline: true
+        },
+        {
+          name: 'Website',
+          value: `[safepeek.org](${WEBSITE})`,
+          inline: true
+        },
+        {
+          name: 'Support',
+          value: `[discord.gg\u200B/${DISCORD_INVITE_CODE}](${DISCORD_INVITE})`,
+          inline: true
+        },
+        {
+          name: 'GitHub',
+          value: `[safepeek/safepeek](${APP_GITHUB})`,
+          inline: true
+        },
+        {
+          name: 'Legal',
+          value: `[Terms](${WEBSITE}/legal/terms) | [Privacy](${WEBSITE}/legal/privacy)`,
+          inline: true
+        },
+        {
+          name: 'Version',
+          value: `${APP_VERSION} [\`[${COMMIT_HASH_SHORT}]\`](${APP_GITHUB}/commit/${COMMIT_HASH})`,
+          inline: true
+        }
+      ],
       footer: {
         text: `© ${date.getFullYear()} Anthony Collier`
       },
