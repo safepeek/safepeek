@@ -1,0 +1,310 @@
+{
+  "id": "9c356ad0-6676-4f79-b870-bc54bf597e17",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "5",
+  "dialect": "pg",
+  "tables": {
+    "analyzed_url_results": {
+      "name": "analyzed_url_results",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(26)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "analyzed_url_revision_id": {
+          "name": "analyzed_url_revision_id",
+          "type": "varchar(26)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "redirect_analyzed_url_id": {
+          "name": "redirect_analyzed_url_id",
+          "type": "char(26)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meta_title": {
+          "name": "meta_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "meta_description": {
+          "name": "meta_description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "analyzed_url_results_analyzed_url_revision_id_index": {
+          "name": "analyzed_url_results_analyzed_url_revision_id_index",
+          "columns": [
+            "analyzed_url_revision_id"
+          ],
+          "isUnique": false
+        },
+        "analyzed_url_results_redirect_analyzed_url_id_index": {
+          "name": "analyzed_url_results_redirect_analyzed_url_id_index",
+          "columns": [
+            "redirect_analyzed_url_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "analyzed_url_results_analyzed_url_revision_id_analyzed_url_revisions_id_fk": {
+          "name": "analyzed_url_results_analyzed_url_revision_id_analyzed_url_revisions_id_fk",
+          "tableFrom": "analyzed_url_results",
+          "tableTo": "analyzed_url_revisions",
+          "columnsFrom": [
+            "analyzed_url_revision_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        },
+        "analyzed_url_results_redirect_analyzed_url_id_analyzed_urls_id_fk": {
+          "name": "analyzed_url_results_redirect_analyzed_url_id_analyzed_urls_id_fk",
+          "tableFrom": "analyzed_url_results",
+          "tableTo": "analyzed_urls",
+          "columnsFrom": [
+            "redirect_analyzed_url_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "analyzed_url_revisions": {
+      "name": "analyzed_url_revisions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(26)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "analyzed_url_id": {
+          "name": "analyzed_url_id",
+          "type": "char(26)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "char(26)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "guild_id": {
+          "name": "guild_id",
+          "type": "char(26)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "discord_channel_id": {
+          "name": "discord_channel_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "analyzed_url_revisions_analyzed_url_id_index": {
+          "name": "analyzed_url_revisions_analyzed_url_id_index",
+          "columns": [
+            "analyzed_url_id"
+          ],
+          "isUnique": false
+        },
+        "analyzed_url_revisions_user_id_index": {
+          "name": "analyzed_url_revisions_user_id_index",
+          "columns": [
+            "user_id"
+          ],
+          "isUnique": false
+        },
+        "analyzed_url_revisions_guild_id_index": {
+          "name": "analyzed_url_revisions_guild_id_index",
+          "columns": [
+            "guild_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "analyzed_url_revisions_analyzed_url_id_analyzed_urls_id_fk": {
+          "name": "analyzed_url_revisions_analyzed_url_id_analyzed_urls_id_fk",
+          "tableFrom": "analyzed_url_revisions",
+          "tableTo": "analyzed_urls",
+          "columnsFrom": [
+            "analyzed_url_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        },
+        "analyzed_url_revisions_user_id_users_id_fk": {
+          "name": "analyzed_url_revisions_user_id_users_id_fk",
+          "tableFrom": "analyzed_url_revisions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        },
+        "analyzed_url_revisions_guild_id_guilds_id_fk": {
+          "name": "analyzed_url_revisions_guild_id_guilds_id_fk",
+          "tableFrom": "analyzed_url_revisions",
+          "tableTo": "guilds",
+          "columnsFrom": [
+            "guild_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "analyzed_urls": {
+      "name": "analyzed_urls",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(26)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "domain_hash": {
+          "name": "domain_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "path_hash": {
+          "name": "path_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "params_hash": {
+          "name": "params_hash",
+          "type": "char(64)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "analyzed_urls_domain_hash_index": {
+          "name": "analyzed_urls_domain_hash_index",
+          "columns": [
+            "domain_hash"
+          ],
+          "isUnique": false
+        },
+        "analyzed_urls_domain_hash_path_hash_params_hash_index": {
+          "name": "analyzed_urls_domain_hash_path_hash_params_hash_index",
+          "columns": [
+            "domain_hash",
+            "path_hash",
+            "params_hash"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "guilds": {
+      "name": "guilds",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(26)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "discord_id": {
+          "name": "discord_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "guilds_discord_id_index": {
+          "name": "guilds_discord_id_index",
+          "columns": [
+            "discord_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "char(26)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "discord_id": {
+          "name": "discord_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "users_discord_id_index": {
+          "name": "users_discord_id_index",
+          "columns": [
+            "discord_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
