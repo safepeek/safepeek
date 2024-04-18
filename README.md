@@ -15,7 +15,7 @@ Coming Soon.
 Coming Soon
 
 ## Security and Privacy
-SafePeek is committed to user safety and privacy. URLs are processed securely to ensure privacy and compliance with data protection regulations.
+SafePeek is committed to user safety and privacy. URLs are processed securely to ensure privacy and compliance with data protection regulations (we are currently working out securely processing Google Safe Browsing API requests).
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
