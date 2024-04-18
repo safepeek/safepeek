@@ -37,11 +37,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Migrate
-        run: pnpm db:migrate
-        env:
-          POSTGRES_URL: ${{ secrets.POSTGRES_URL }}
-
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
