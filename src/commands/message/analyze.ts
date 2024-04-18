@@ -6,10 +6,10 @@ import {
   ComponentActionRow,
   ComponentButton,
   ComponentContext,
+  ComponentSelectMenu,
   ComponentSelectOption,
   ComponentType,
   InteractionContextType,
-  Message,
   SlashCommand,
   SlashCreator
 } from 'slash-create/web';
@@ -31,6 +31,13 @@ import { getUserProfile } from '@/lib/db/utils';
 import { AnalysisData } from '@/types/url';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
+
+type HandleUrlProps = {
+  ctx: ComponentContext | CommandContext;
+  selectedUrl: string;
+  ephemeral: boolean;
+  urlSelectComponent: ComponentSelectMenu;
+};
 
 export default class AnalyzeMessageCommand extends SlashCommand {
   constructor(creator: SlashCreator) {
@@ -63,48 +70,57 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     const component = urlSelectComponent;
     const options: ComponentSelectOption[] = [];
 
+    const onlyOneResult = urls.length === 1;
+
     for (const url of urls) {
       const truncated = truncate(url, 100);
 
       options.push({
         label: truncated,
         value: truncated,
-        description: 'The parsed URL result.'
+        description: 'The parsed URL result.',
+        default: onlyOneResult ? true : undefined
       });
     }
 
     component.options = options;
 
+    const components: ComponentActionRow[] = [
+      {
+        type: ComponentType.ACTION_ROW,
+        components: [component]
+      },
+      {
+        type: ComponentType.ACTION_ROW,
+        components: [
+          jumpToMessageButton({
+            guildId: ctx.guildID!,
+            channelId: ctx.targetMessage!.channelID,
+            messageId: ctx.targetMessage!.id
+          })
+        ]
+      }
+    ];
+
+    if (onlyOneResult) components[1].components.splice(0, 0, ...urlButtons);
+
     await ctx.editOriginal({
-      content: 'Choose a URL to analyze:',
+      content: onlyOneResult ? `Selected URL: \`\`\`${urls[0]}\`\`\`` : 'Choose a URL to analyze:',
       embeds: [],
-      components: [
-        {
-          type: ComponentType.ACTION_ROW,
-          components: [component]
-        },
-        {
-          type: ComponentType.ACTION_ROW,
-          components: [
-            jumpToMessageButton({
-              guildId: ctx.guildID!,
-              channelId: ctx.targetMessage!.channelID,
-              messageId: ctx.targetMessage!.id
-            })
-          ]
-        }
-      ]
+      components
     });
 
+    if (onlyOneResult) return this.handleUrl({ ctx, selectedUrl: urls[0], urlSelectComponent, ephemeral });
+
     ctx.registerComponent('url_select', async (selectCtx) => {
-      return this.handleUrl(selectCtx, ctx.targetMessage!, ephemeral);
+      return this.handleUrl({ ctx, selectedUrl: selectCtx.values[0], urlSelectComponent, ephemeral });
     });
   }
 
-  private async handleUrl(ctx: ComponentContext, targetMessage: Message, ephemeral: boolean) {
-    const selectedUrl = ctx.values[0];
+  private async handleUrl(props: HandleUrlProps) {
+    const selectedUrl = props.selectedUrl;
 
-    const component = urlSelectComponent;
+    const component = props.urlSelectComponent;
     component.options = component.options!.map((opt) => {
       if (opt.value === selectedUrl) {
         return {
@@ -118,7 +134,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
       };
     });
 
-    await ctx.editOriginal({
+    await props.ctx.editOriginal({
       content: `Selected URL: \`\`\`${selectedUrl}\`\`\``,
       embeds: [],
       components: [
@@ -131,16 +147,16 @@ export default class AnalyzeMessageCommand extends SlashCommand {
           components: [
             ...urlButtons,
             jumpToMessageButton({
-              guildId: ctx.guildID!,
-              channelId: targetMessage.channelID,
-              messageId: targetMessage.id
+              guildId: props.ctx.guildID!,
+              channelId: props.ctx instanceof CommandContext ? props.ctx.targetMessage!.channelID : props.ctx.channelID,
+              messageId: props.ctx instanceof CommandContext ? props.ctx.targetMessage!.id : props.ctx.messageID!
             })
           ]
         }
       ]
     });
 
-    ctx.registerComponent('analyze_button', async (btnCtx) => {
+    props.ctx.registerComponent('analyze_button', async (btnCtx) => {
       component.options = component.options!.map((opt) => {
         if (opt.default) {
           return {
@@ -183,9 +199,10 @@ export default class AnalyzeMessageCommand extends SlashCommand {
             type: ComponentType.ACTION_ROW,
             components: [
               jumpToMessageButton({
-                guildId: ctx.guildID!,
-                channelId: targetMessage.channelID,
-                messageId: targetMessage.id
+                guildId: props.ctx.guildID!,
+                channelId:
+                  props.ctx instanceof CommandContext ? props.ctx.targetMessage!.channelID : props.ctx.channelID,
+                messageId: props.ctx instanceof CommandContext ? props.ctx.targetMessage!.id : props.ctx.messageID!
               }),
               safetyCheckButton,
               cancelButton
@@ -195,7 +212,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
       });
     });
 
-    ctx.registerComponent('safety_check_button', async (btnCtx) => {
+    props.ctx.registerComponent('safety_check_button', async (btnCtx) => {
       let data: AnalysisData, threatData: ThreatMatchResponse;
       try {
         data = await fetchUrlData(selectedUrl);
@@ -216,14 +233,14 @@ export default class AnalyzeMessageCommand extends SlashCommand {
             components
           });
 
-          return ctx.send({
+          return props.ctx.send({
             embeds: [threatEmbedNoHits()],
-            ephemeral
+            ephemeral: props.ephemeral
           });
         }
 
         console.error(e);
-        return ctx.send({ content: `An error occurred analyzing the URL: \`${selectedUrl}\``, ephemeral: true });
+        return props.ctx.send({ content: `An error occurred analyzing the URL: \`${selectedUrl}\``, ephemeral: true });
       }
 
       const embed = threatEmbedBuilder({
@@ -231,26 +248,27 @@ export default class AnalyzeMessageCommand extends SlashCommand {
         threatData
       });
 
-      return ctx.send({
+      return props.ctx.send({
         embeds: [embed],
         components: [
           {
             type: ComponentType.ACTION_ROW,
             components: [
               jumpToMessageButton({
-                guildId: ctx.guildID!,
-                channelId: targetMessage.channelID,
-                messageId: targetMessage.id
+                guildId: props.ctx.guildID!,
+                channelId:
+                  props.ctx instanceof CommandContext ? props.ctx.targetMessage!.channelID : props.ctx.channelID,
+                messageId: props.ctx instanceof CommandContext ? props.ctx.targetMessage!.id : props.ctx.messageID!
               }),
               cancelButton
             ]
           }
         ],
-        ephemeral
+        ephemeral: props.ephemeral
       });
     });
 
-    ctx.registerComponent('cancel_button', async (btnCtx) => {
+    props.ctx.registerComponent('cancel_button', async (btnCtx) => {
       return btnCtx.delete();
     });
   }
