@@ -46,9 +46,9 @@ export default class HelpSlashCommand extends SlashCommand {
     const ephemeral = options.ephemeral ?? profile.ephemeral ?? true;
 
     const analyzeSlashCommandId: string =
-      this.creator.client.env === 'production' ? '1210526106634027019' : '1210506556710588487';
+      this.creator.client.NODE_ENV === 'production' ? '1210526106634027019' : '1210506556710588487';
     const analyzeMessageCommandId: string =
-      this.creator.client.env === 'production' ? '1210526106634027018' : '1208321747040870412';
+      this.creator.client.NODE_ENV === 'production' ? '1210526106634027018' : '1208321747040870412';
 
     const embed = new EmbedBuilder()
       .setTitle(`${APP_NAME} • Help`)
