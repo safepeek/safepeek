@@ -1,13 +1,13 @@
 import {
   CommandContext,
-  MessageEmbed,
   SlashCommand,
   SlashCreator,
   ApplicationIntegrationType,
   CommandOptionType,
   InteractionContextType
 } from 'slash-create/web';
-import { APIApplication } from 'discord-api-types/v10';
+import { APIApplication, APIEmbed } from 'discord-api-types/v10';
+import { EmbedBuilder } from '@discordjs/builders';
 
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
@@ -59,10 +59,9 @@ export default class StatsSlashCommand extends SlashCommand {
     const slashCreateVersion = packageJson.devDependencies['slash-create'];
     const typescriptVersion = packageJson.devDependencies.typescript;
 
-    const embed: MessageEmbed = {
-      type: 'rich',
-      color: EMBED_COLOR,
-      fields: [
+    const embed: APIEmbed = new EmbedBuilder()
+      .setColor(EMBED_COLOR)
+      .setFields([
         {
           name: 'Guild Count',
           value: guildCount?.toLocaleString() ?? '0',
@@ -93,8 +92,9 @@ export default class StatsSlashCommand extends SlashCommand {
           value: '\u200B',
           inline: true
         }
-      ]
-    };
+      ])
+      .setTimestamp()
+      .toJSON();
 
     return ctx.send({
       embeds: [embed],

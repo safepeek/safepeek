@@ -4,10 +4,12 @@ import {
   SlashCreator,
   ApplicationIntegrationType,
   CommandOptionType,
-  InteractionContextType,
-  MessageEmbed
+  InteractionContextType
 } from 'slash-create/web';
 import { stripIndents } from 'common-tags';
+import { APIEmbed } from 'discord-api-types/v10';
+import { EmbedBuilder } from '@discordjs/builders';
+
 import { EMBED_COLOR } from '@/lib/constants';
 import { getUserProfile, updateUserProfile } from '@/lib/db/utils';
 import { EmbedAuthor } from 'slash-create/lib/structures/message';
@@ -61,17 +63,19 @@ export default class ProfileSlashCommand extends SlashCommand {
 
       ephemeral = userProfile.data.data.ephemeral;
 
-      const embed: MessageEmbed = {
-        type: 'rich',
-        color: EMBED_COLOR,
-        author: embedAuthor,
-        description: stripIndents`
+      const embed: APIEmbed = new EmbedBuilder()
+        .setColor(EMBED_COLOR)
+        .setAuthor(embedAuthor)
+        .setDescription(
+          stripIndents`
           The **ephemeral** option has been successfully updated to \`${ephemeral ? 'true' : 'false'}\`
-        `,
-        footer: {
+        `
+        )
+        .setFooter({
           text: userProfile.id
-        }
-      };
+        })
+        .setTimestamp()
+        .toJSON();
 
       return ctx.send({
         embeds: [embed],
@@ -86,17 +90,19 @@ export default class ProfileSlashCommand extends SlashCommand {
 
     ephemeral = userProfile.ephemeral!;
 
-    const embed: MessageEmbed = {
-      type: 'rich',
-      color: EMBED_COLOR,
-      author: embedAuthor,
-      description: stripIndents`
+    const embed: APIEmbed = new EmbedBuilder()
+      .setColor(EMBED_COLOR)
+      .setAuthor(embedAuthor)
+      .setDescription(
+        stripIndents`
         **Ephemeral**: ${userProfile.ephemeral}
-      `,
-      footer: {
+      `
+      )
+      .setFooter({
         text: userProfile.id
-      }
-    };
+      })
+      .setTimestamp()
+      .toJSON();
 
     return ctx.send({
       embeds: [embed],

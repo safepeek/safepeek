@@ -1,8 +1,9 @@
-import { AnalysisData } from '@/types/url';
-import { MessageEmbed } from 'slash-create/web';
-import { EMBED_COLOR } from '@/lib/constants';
-import { decode, truncate } from '@/lib/urls';
 import { oneLine } from 'common-tags';
+import { EmbedBuilder } from '@discordjs/builders';
+import { APIEmbed } from 'discord-api-types/v10';
+import { AnalysisData } from '@/types/url';
+import { APP_NAME, EMBED_COLOR } from '@/lib/constants';
+import { decode, truncate } from '@/lib/urls';
 import { ThreatMatchResponse } from '@/types/google';
 
 type ThreatEmbedInput = {
@@ -10,35 +11,36 @@ type ThreatEmbedInput = {
   threatData: ThreatMatchResponse;
 };
 
-export const threatEmbedBuilder = (data: ThreatEmbedInput): MessageEmbed => {
-  return {
-    type: 'rich',
-    title: 'SafePeek Threat Analysis',
-    description: "Here's what the Google Safe Browsing API provided about the URL.",
-    color: EMBED_COLOR,
-    fields: data.threatData.matches.map((match) => ({
-      name: 'Threat Information',
-      value: `\`\`\`${JSON.stringify(match, null, 2)}\`\`\``
-    })),
-    footer: {
+export const threatEmbedBuilder = (data: ThreatEmbedInput): APIEmbed => {
+  return new EmbedBuilder()
+    .setTitle(`${APP_NAME} • Threat Analysis`)
+    .setDescription("Here's what the Google Safe Browsing API provided about the URL.")
+    .setColor(EMBED_COLOR)
+    .setFields(
+      data.threatData.matches.map((match) => ({
+        name: 'Threat Information',
+        value: `\`\`\`${JSON.stringify(match, null, 2)}\`\`\``
+      }))
+    )
+    .setFooter({
       text: 'Google works to provide the most accurate and up-to-date information about unsafe web resources. However, Google cannot guarantee that its information is comprehensive and error-free: some risky sites may not be identified, and some safe sites may be identified in error.'
-    },
-    timestamp: new Date()
-  };
+    })
+    .setTimestamp()
+    .toJSON();
 };
 
-export const threatEmbedNoHits = (): MessageEmbed => {
-  return {
-    type: 'rich',
-    title: 'SafePeek Threat Analysis',
-    description:
-      'The website has been checked against known security threats and no issues were found. However, please remain cautious as new threats emerge constantly, and not all risks may be known at the time of this check.',
-    color: EMBED_COLOR,
-    footer: {
+export const threatEmbedNoHits = (): APIEmbed => {
+  return new EmbedBuilder()
+    .setTitle(`${APP_NAME} • Threat Analysis`)
+    .setDescription(
+      'The website has been checked against known security threats and no issues were found. However, please remain cautious as new threats emerge constantly, and not all risks may be known at the time of this check.'
+    )
+    .setColor(EMBED_COLOR)
+    .setFooter({
       text: 'Google works to provide the most accurate and up-to-date information about unsafe web resources. However, Google cannot guarantee that its information is comprehensive and error-free: some risky sites may not be identified, and some safe sites may be identified in error.'
-    },
-    timestamp: new Date()
-  };
+    })
+    .setTimestamp()
+    .toJSON();
 };
 
 type ResultEmbedInput = {
@@ -46,16 +48,15 @@ type ResultEmbedInput = {
   analyzedId: string;
 };
 
-export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
+export const resultEmbedBuilder = (data: ResultEmbedInput): APIEmbed => {
   const metaTitle = truncate(decode(data.input.title), 256);
   const metaDescription = truncate(decode(oneLine(data.input.description)), 256);
 
-  return {
-    type: 'rich',
-    title: 'SafePeek Results',
-    description: "Here's what I found about the URL you asked me to analyze.",
-    color: EMBED_COLOR,
-    fields: [
+  return new EmbedBuilder()
+    .setTitle(`${APP_NAME} • Results`)
+    .setDescription("Here's what I found about the URL you asked me to analyze.")
+    .setColor(EMBED_COLOR)
+    .addFields([
       {
         name: 'Title',
         value: data.input.title ? metaTitle : 'No title found.',
@@ -92,10 +93,10 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): MessageEmbed => {
         value: data.input.destinationUrl,
         inline: false
       }
-    ],
-    footer: {
+    ])
+    .setFooter({
       text: data.analyzedId
-    },
-    timestamp: new Date()
-  };
+    })
+    .setTimestamp()
+    .toJSON();
 };

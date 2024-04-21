@@ -1,12 +1,13 @@
 import {
   CommandContext,
-  MessageEmbed,
   SlashCommand,
   SlashCreator,
   ApplicationIntegrationType,
   CommandOptionType,
   InteractionContextType
 } from 'slash-create/web';
+import { EmbedBuilder } from '@discordjs/builders';
+import { APIEmbed } from 'discord-api-types/v10';
 
 import {
   APP_DESCRIPTION,
@@ -59,12 +60,11 @@ export default class AboutSlashCommand extends SlashCommand {
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;
     const COMMIT_HASH_SHORT = this.creator.client.LAST_COMMIT_SHORT;
 
-    const embed: MessageEmbed = {
-      type: 'rich',
-      title: APP_NAME,
-      description: APP_DESCRIPTION,
-      color: EMBED_COLOR,
-      fields: [
+    const embed: APIEmbed = new EmbedBuilder()
+      .setTitle(APP_NAME)
+      .setDescription(APP_DESCRIPTION)
+      .setColor(EMBED_COLOR)
+      .addFields([
         {
           name: 'Bot Author',
           value: 'Anthony Collier (acollierr17)',
@@ -95,12 +95,12 @@ export default class AboutSlashCommand extends SlashCommand {
           value: `${APP_VERSION} [\`[${COMMIT_HASH_SHORT}]\`](${APP_GITHUB}/commit/${COMMIT_HASH})`,
           inline: true
         }
-      ],
-      footer: {
+      ])
+      .setFooter({
         text: `© ${date.getFullYear()} Anthony Collier`
-      },
-      timestamp: date
-    };
+      })
+      .setTimestamp()
+      .toJSON();
 
     return ctx.send({
       embeds: [embed],

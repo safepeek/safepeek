@@ -8,10 +8,11 @@ import {
   SlashCommand,
   SlashCreator
 } from 'slash-create/web';
-import { ActionRowBuilder, EmbedBuilder } from '@discordjs/builders';
+import { EmbedBuilder } from '@discordjs/builders';
+import { stripIndents } from 'common-tags';
+
 import { getUserProfile } from '@/lib/db/utils';
 import { APP_NAME, EMBED_COLOR, WEBSITE } from '@/lib/constants';
-import { stripIndents } from 'common-tags';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
