@@ -40,7 +40,7 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.20.14",
+    "drizzle-kit": "^0.20.17",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
@@ -53,6 +53,7 @@
     "wrangler": "^3.41.0"
   },
   "dependencies": {
+    "@discordjs/builders": "^1.7.0",
     "common-tags": "^1.8.2",
     "discord-api-types": "^0.37.77",
     "drizzle-orm": "^0.29.5",
