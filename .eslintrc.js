@@ -14,7 +14,8 @@ module.exports = {
     NODE_ENV: true,
     GOOGLE_API_KEY: true,
     LAST_COMMIT: true,
-    LAST_COMMIT_SHORT: true
+    LAST_COMMIT_SHORT: true,
+    CF_DEPLOYMENT_ID: true
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

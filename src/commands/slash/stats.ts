@@ -54,6 +54,7 @@ export default class StatsSlashCommand extends SlashCommand {
 
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;
     const COMMIT_HASH_SHORT = this.creator.client.LAST_COMMIT_SHORT;
+    const CF_DEPLOYMENT_ID = this.creator.client.CF_DEPLOYMENT_ID.split('-')[0];
 
     const guildCount = appInfo.approximate_guild_count;
     const slashCreateVersion = packageJson.devDependencies['slash-create'];
@@ -73,8 +74,8 @@ export default class StatsSlashCommand extends SlashCommand {
           inline: true
         },
         {
-          name: '\u200B',
-          value: '\u200B',
+          name: 'Deployment',
+          value: `\`${CF_DEPLOYMENT_ID}\``,
           inline: true
         },
         {

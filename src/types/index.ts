@@ -7,4 +7,6 @@ export type Env = {
   GOOGLE_API_KEY: string;
   LAST_COMMIT: string;
   LAST_COMMIT_SHORT: string;
+  CF_DEPLOYMENT_ID: string;
+  NODE_ENV: string;
 };
