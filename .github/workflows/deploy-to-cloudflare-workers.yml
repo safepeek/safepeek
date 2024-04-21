@@ -55,7 +55,7 @@ jobs:
       - name: Set Deployment ID
         id: get_deployment_id
         run: |
-          CF_DEPLOYMENT_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/{account_id}/workers/scripts/{script_name}/deployments" \
+          CF_DEPLOYMENT_ID=$(curl -s -X GET "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CF_ACCOUNT_ID }}/workers/scripts/${{ secrets.CF_SCRIPT_NAME }}/deployments" \
           -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
           | jq -r '.result.deployments[0].id')
           echo "CF_DEPLOYMENT_ID=$CF_DEPLOYMENT_ID" >> $GITHUB_ENV
