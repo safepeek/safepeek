@@ -1,8 +1,8 @@
-import { oneLine } from 'common-tags';
+import { oneLine, stripIndents } from 'common-tags';
 import { EmbedBuilder } from '@discordjs/builders';
 import { APIEmbed } from 'discord-api-types/v10';
 import { AnalysisData } from '@/types/url';
-import { APP_NAME, EMBED_COLOR } from '@/lib/constants';
+import { APP_NAME, EMBED_COLOR, EMBED_COLOR_ERROR } from '@/lib/constants';
 import { decode, truncate } from '@/lib/urls';
 import { ThreatMatchResponse } from '@/types/google';
 
@@ -97,6 +97,21 @@ export const resultEmbedBuilder = (data: ResultEmbedInput): APIEmbed => {
     .setFooter({
       text: data.analyzedId
     })
+    .setTimestamp()
+    .toJSON();
+};
+
+export const errorEmbedBuilder = (error: Error | any): APIEmbed => {
+  return new EmbedBuilder()
+    .setTitle('Error')
+    .setDescription(
+      stripIndents`
+          \`\`\`
+          ${error.stack}
+          \`\`\`
+        `
+    )
+    .setColor(EMBED_COLOR_ERROR)
     .setTimestamp()
     .toJSON();
 };

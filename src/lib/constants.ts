@@ -1,6 +1,7 @@
 import packageJson from '../../package.json';
 
 export const EMBED_COLOR: number = 0x74b9ff;
+export const EMBED_COLOR_ERROR: number = 0xd63031;
 
 export const APP_NAME: string = 'SafePeek';
 export const APP_DESCRIPTION: string = packageJson.description;

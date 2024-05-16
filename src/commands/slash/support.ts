@@ -9,6 +9,7 @@ import {
 
 import { DISCORD_INVITE } from '@/lib/constants';
 import { getUserProfile } from '@/lib/db/utils';
+import { errorEmbedBuilder } from '@/ui';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -30,6 +31,11 @@ export default class SupportSlashCommand extends SlashCommand {
       integrationTypes: [ApplicationIntegrationType.GUILD_INSTALL, ApplicationIntegrationType.USER_INSTALL],
       contexts: [InteractionContextType.GUILD, InteractionContextType.PRIVATE_CHANNEL, InteractionContextType.BOT_DM]
     });
+  }
+
+  async onError(err: Error, ctx: CommandContext) {
+    const embed = errorEmbedBuilder(err);
+    return ctx.send({ content: 'An error occurred running this command.', embeds: [embed], ephemeral: true });
   }
 
   async run(ctx: CommandContext) {

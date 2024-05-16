@@ -20,6 +20,7 @@ import {
   WEBSITE
 } from '@/lib/constants';
 import { getUserProfile } from '@/lib/db/utils';
+import { errorEmbedBuilder } from '@/ui';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -44,7 +45,8 @@ export default class AboutSlashCommand extends SlashCommand {
   }
 
   async onError(err: Error, ctx: CommandContext) {
-    return ctx.send({ content: 'An error occurred running this command.', ephemeral: true });
+    const embed = errorEmbedBuilder(err);
+    return ctx.send({ content: 'An error occurred running this command.', embeds: [embed], ephemeral: true });
   }
 
   async run(ctx: CommandContext) {

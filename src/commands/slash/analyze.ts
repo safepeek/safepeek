@@ -12,13 +12,18 @@ import {
 } from 'slash-create/web';
 import extractUrls from 'extract-urls';
 
-import { cancelButton, resultEmbedBuilder, safetyCheckButton, threatEmbedBuilder, threatEmbedNoHits } from '@/ui';
+import {
+  cancelButton,
+  errorEmbedBuilder,
+  resultEmbedBuilder,
+  safetyCheckButton,
+  threatEmbedBuilder,
+  threatEmbedNoHits
+} from '@/ui';
 import { analyzeUrl } from '@/lib/urls';
 import { getUserProfile } from '@/lib/db/utils';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
-import { EmbedBuilder } from '@discordjs/builders';
-import { stripIndents } from 'common-tags';
 import { AnalyzeUrlError, AnalyzeUrlResponse, AnalyzeUrlSuccess } from '@/types/url';
 
 type OptionTypes = {
@@ -51,7 +56,8 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async onError(err: Error, ctx: CommandContext) {
-    return ctx.send({ content: 'An error occurred running this command.', ephemeral: true });
+    const embed = errorEmbedBuilder(err);
+    return ctx.send({ content: 'An error occurred running this command.', embeds: [embed], ephemeral: true });
   }
 
   async run(ctx: CommandContext) {
@@ -80,17 +86,7 @@ export default class AnalyzeSlashCommand extends SlashCommand {
       if (!data.ok) return new Error((data as AnalyzeUrlError).data.code);
     } catch (e: any) {
       console.error(e);
-      const errorEmbed = new EmbedBuilder()
-        .setTitle('Error')
-        .setDescription(
-          stripIndents`
-          \`\`\`
-          ${e.stack}
-          \`\`\`
-        `
-        )
-        .setTimestamp()
-        .toJSON();
+      const errorEmbed = errorEmbedBuilder(e);
 
       return ctx.send({
         content: `An error occurred analyzing the URL: \`${url}\``,
@@ -141,7 +137,12 @@ export default class AnalyzeSlashCommand extends SlashCommand {
         }
 
         console.error(e);
-        return ctx.send({ content: `An error occurred analyzing the URL: \`${url}\``, ephemeral: true });
+        const errorEmbed = errorEmbedBuilder(e);
+        return ctx.send({
+          content: `An error occurred analyzing the URL: \`${url}\``,
+          embeds: [errorEmbed],
+          ephemeral: true
+        });
       }
 
       const embed = threatEmbedBuilder({

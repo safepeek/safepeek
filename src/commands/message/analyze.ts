@@ -17,6 +17,7 @@ import extractUrls from 'extract-urls';
 
 import {
   cancelButton,
+  errorEmbedBuilder,
   jumpToMessageButton,
   resultEmbedBuilder,
   safetyCheckButton,
@@ -56,7 +57,8 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   }
 
   async onError(err: Error, ctx: CommandContext) {
-    return ctx.send({ content: 'An error occurred running this command.', ephemeral: true });
+    const embed = errorEmbedBuilder(err);
+    return ctx.send({ content: 'An error occurred running this command.', embeds: [embed], ephemeral: true });
   }
 
   async run(ctx: CommandContext) {
@@ -184,7 +186,13 @@ export default class AnalyzeMessageCommand extends SlashCommand {
 
         if (!data.ok) return new Error((data as AnalyzeUrlError).data.code);
       } catch (e: any) {
-        return btnCtx.editOriginal(`An error occurred analyzing the URL: \`${selectedUrl}\``);
+        console.error(e);
+        const errorEmbed = errorEmbedBuilder(e);
+        return btnCtx.send({
+          content: `An error occurred analyzing the URL: \`${selectedUrl}\``,
+          embeds: [errorEmbed],
+          ephemeral: true
+        });
       }
 
       const embed = resultEmbedBuilder({
@@ -246,7 +254,12 @@ export default class AnalyzeMessageCommand extends SlashCommand {
         }
 
         console.error(e);
-        return props.ctx.send({ content: `An error occurred analyzing the URL: \`${selectedUrl}\``, ephemeral: true });
+        const errorEmbed = errorEmbedBuilder(e);
+        return props.ctx.send({
+          content: `An error occurred analyzing the URL: \`${selectedUrl}\``,
+          embeds: [errorEmbed],
+          ephemeral: true
+        });
       }
 
       const embed = threatEmbedBuilder({
