@@ -13,13 +13,13 @@ import {
 import extractUrls from 'extract-urls';
 
 import { cancelButton, resultEmbedBuilder, safetyCheckButton, threatEmbedBuilder, threatEmbedNoHits } from '@/ui';
-import { validateUrl } from '@/lib/fetch';
 import { analyzeUrl } from '@/lib/urls';
 import { getUserProfile } from '@/lib/db/utils';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
 import { EmbedBuilder } from '@discordjs/builders';
 import { stripIndents } from 'common-tags';
+import { AnalyzeUrlError, AnalyzeUrlResponse, AnalyzeUrlSuccess } from '@/types/url';
 
 type OptionTypes = {
   url: string;
@@ -67,18 +67,17 @@ export default class AnalyzeSlashCommand extends SlashCommand {
 
     const urls = extractUrls(ctx.options.url as string);
     if (!urls) return ctx.editOriginal({ content: `The provided URL \`${ctx.options.url}\` was invalid.` });
-
     const url = urls[0];
-    const validUrl = await validateUrl(url);
-    if (!validUrl) return ctx.editOriginal(`The following URL had an invalid response: \`${url}\``);
 
-    let data;
+    let data: AnalyzeUrlResponse;
     try {
-      data = await analyzeUrl({
+      data = (await analyzeUrl({
         creator: this.creator,
         ctx,
         url: urls![0]
-      });
+      })) as AnalyzeUrlSuccess;
+
+      if (!data.ok) return new Error((data as AnalyzeUrlError).data.code);
     } catch (e: any) {
       console.error(e);
       const errorEmbed = new EmbedBuilder()

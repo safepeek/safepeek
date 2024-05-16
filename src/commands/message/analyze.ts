@@ -25,10 +25,16 @@ import {
   urlButtons,
   urlSelectComponent
 } from '@/ui';
-import { fetchUrlData, validateUrl } from '@/lib/fetch';
+import { fetchUrlData } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
 import { getUserProfile } from '@/lib/db/utils';
-import { AnalysisData } from '@/types/url';
+import {
+  AnalyzeUrlError,
+  AnalyzeUrlResponse,
+  AnalyzeUrlSuccess,
+  FetchUrlDataError,
+  FetchUrlDataResponse
+} from '@/types/url';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
 
@@ -168,16 +174,15 @@ export default class AnalyzeMessageCommand extends SlashCommand {
         return opt;
       });
 
-      const validUrl = await validateUrl(selectedUrl);
-      if (!validUrl) return btnCtx.editOriginal(`The following URL had an invalid response: \`${selectedUrl}\``);
-
-      let data;
+      let data: AnalyzeUrlResponse;
       try {
-        data = await analyzeUrl({
+        data = (await analyzeUrl({
           creator: this.creator,
           ctx: btnCtx,
           url: selectedUrl
-        });
+        })) as AnalyzeUrlSuccess;
+
+        if (!data.ok) return new Error((data as AnalyzeUrlError).data.code);
       } catch (e: any) {
         return btnCtx.editOriginal(`An error occurred analyzing the URL: \`${selectedUrl}\``);
       }
@@ -213,12 +218,13 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     props.ctx.registerComponent('safety_check_button', async (btnCtx) => {
-      let data: AnalysisData, threatData: ThreatMatchResponse;
+      let data: FetchUrlDataResponse, threatData: ThreatMatchResponse;
       try {
-        data = await fetchUrlData(selectedUrl);
+        data = await fetchUrlData(selectedUrl, this.creator.client);
+        if (!data.ok) return new Error((data as FetchUrlDataError).data.code);
         threatData = await checkUrlsForThreats({
           apiKey: this.creator.client.GOOGLE_API_KEY,
-          urls: [data.destinationUrl]
+          urls: [data.data.destinationUrl]
         });
       } catch (e: any) {
         if (e === 'NO_MATCHES_FOUND') {
@@ -244,7 +250,7 @@ export default class AnalyzeMessageCommand extends SlashCommand {
       }
 
       const embed = threatEmbedBuilder({
-        input: data,
+        input: data.data,
         threatData
       });
 

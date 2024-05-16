@@ -6,6 +6,23 @@ export type AnalysisData = {
   redirects: AnalyzedUrlRedirect[];
 };
 
+export type AnalysisError = {
+  code: string;
+  url?: string;
+};
+
+export type FetchUrlDataSuccess = {
+  ok: true;
+  data: AnalysisData;
+};
+
+export type FetchUrlDataError = {
+  ok: false;
+  data: AnalysisError;
+};
+
+export type FetchUrlDataResponse = FetchUrlDataSuccess | FetchUrlDataError;
+
 export interface AnalyzedUrl {
   guildId: bigint | null;
   userId: bigint;
@@ -22,3 +39,16 @@ export interface AnalyzedUrlRedirectMetadata {
   title: string;
   description: string;
 }
+
+export type AnalyzeUrlSuccess = {
+  ok: true;
+  data: AnalysisData;
+  id: string;
+};
+
+export type AnalyzeUrlError = {
+  ok: false;
+  data: AnalysisError;
+};
+
+export type AnalyzeUrlResponse = AnalyzeUrlSuccess | AnalyzeUrlError;

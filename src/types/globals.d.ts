@@ -9,6 +9,8 @@ declare const GOOGLE_API_KEY: string;
 declare const LAST_COMMIT: string;
 declare const LAST_COMMIT_SHORT: string;
 declare const CF_DEPLOYMENT_ID: string;
+declare const API_KEY: string;
+declare const API_BASE_ROUTE: string;
 
 // extract-urls.d.ts
 declare module 'extract-urls' {

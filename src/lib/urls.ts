@@ -3,7 +3,7 @@ import he from 'he';
 import { client } from '@/lib/db';
 import { fetchUrlData } from '@/lib/fetch';
 import { createFromAnalyzedUrlData } from '@/lib/db/utils';
-import { AnalysisData } from '@/types/url';
+import { AnalyzeUrlResponse } from '@/types/url';
 
 type AnalyzeUrlProps = {
   creator: BaseSlashCreator;
@@ -11,13 +11,10 @@ type AnalyzeUrlProps = {
   url: string;
 };
 
-type AnalyzeUrlResponse = {
-  data: AnalysisData;
-  id: string;
-};
-
 export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResponse> => {
-  const data = await fetchUrlData(props.url);
+  const data = await fetchUrlData(props.url, props.creator.client);
+
+  if (!data.ok) throw new Error(data.data.code);
 
   const dbClient = client(props.creator.client);
   await dbClient.connect();
@@ -28,14 +25,18 @@ export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResp
       guildId: props.ctx.guildID ? BigInt(props.ctx.guildID) : null,
       userId: BigInt(props.ctx.user.id),
       channelId: BigInt(props.ctx.channelID),
-      redirects: data.redirects
+      redirects: data.data.redirects
     }
   });
 
   // TODO: look into properly running dbClient.end() as the worker process is killed before the rest of the function can run
   // await dbClient.end();
 
-  return { data, id };
+  return {
+    ok: true,
+    data: data.data,
+    id
+  };
 };
 
 export const truncate = (string: string, maxLength: number): string => {
