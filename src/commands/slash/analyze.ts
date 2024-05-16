@@ -18,6 +18,8 @@ import { analyzeUrl } from '@/lib/urls';
 import { getUserProfile } from '@/lib/db/utils';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
+import { EmbedBuilder } from '@discordjs/builders';
+import { stripIndents } from 'common-tags';
 
 type OptionTypes = {
   url: string;
@@ -79,7 +81,23 @@ export default class AnalyzeSlashCommand extends SlashCommand {
       });
     } catch (e: any) {
       console.error(e);
-      return ctx.send({ content: `An error occurred analyzing the URL: \`${url}\``, ephemeral: true });
+      const errorEmbed = new EmbedBuilder()
+        .setTitle('Error')
+        .setDescription(
+          stripIndents`
+          \`\`\`
+          ${e.stack}
+          \`\`\`
+        `
+        )
+        .setTimestamp()
+        .toJSON();
+
+      return ctx.send({
+        content: `An error occurred analyzing the URL: \`${url}\``,
+        embeds: [errorEmbed],
+        ephemeral: true
+      });
     }
 
     const embed = resultEmbedBuilder({

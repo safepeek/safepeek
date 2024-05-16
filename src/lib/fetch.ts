@@ -1,11 +1,14 @@
 // TODO: further handle fetch-related errors
 import { type AnalysisData, AnalyzedUrlRedirect } from '@/types/url';
 
-const fetcher = (url: string, follow?: boolean) => {
-  // TODO: some urls return a 4xx error. not sure why. need to look into this more
-  // TODO: some urls return a 429 too many redirects error. has to do with cloudflare workers
+type FetcherOpts = {
+  follow?: boolean;
+  signal?: AbortSignal;
+};
+
+const fetcher = (url: string, opts?: FetcherOpts) => {
   return fetch(url, {
-    redirect: follow ? 'follow' : 'manual',
+    redirect: opts?.follow ? 'follow' : 'manual',
     headers: {
       'User-Agent':
         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36',
@@ -13,30 +16,74 @@ const fetcher = (url: string, follow?: boolean) => {
       'Accept-Language': 'en-US,en;q=0.5',
       'Accept-Encoding': 'gzip, deflate',
       'Content-Type': 'text/html',
-      Referer: 'https://google.com/'
-    }
+      Referer: 'https://google.com'
+    },
+    signal: opts?.signal
   });
 };
 
 export const validateUrl = async (url: string): Promise<boolean> => {
-  const response = await fetcher(url, true);
-  return response.ok;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetcher(url, {
+      signal: controller.signal,
+      follow: true
+    });
+
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      console.error(`URL validation failed with status: ${response.status}`);
+      return false;
+    }
+
+    return response.ok;
+  } catch (error: any) {
+    console.error(`Error validating URL: ${url}`, error.message);
+    console.error(error.stack);
+    return false;
+  }
 };
 
 const fetchWithRedirects = async (url: string) => {
-  let response = await fetcher(url);
-  const metadata = await getMetadata(response);
+  const maxRedirects = 10;
+  let currentUrl = url;
+  let response: Response;
+  let metadata: MetadataResponse;
   const urls: AnalyzedUrlRedirect[] = [];
+  let redirectCount = 0;
+
+  try {
+    response = await fetcher(currentUrl);
+    metadata = await getMetadata(response);
+  } catch (error: any) {
+    console.error('Initial fetch failed:', error);
+    throw new Error('Initial fetch failed: ' + error.message);
+  }
 
   while (response.status >= 300 && response.status < 400) {
+    if (++redirectCount > maxRedirects) {
+      console.error('Exceeded max redirects');
+      throw new Error('Too many redirects');
+    }
+
     const location = response.headers.get('location');
     if (!location) break;
 
-    response = await fetcher(location);
-    const meta = await getMetadata(response);
+    try {
+      currentUrl = new URL(location, response.url).toString();
+      response = await fetcher(currentUrl);
+      metadata = await getMetadata(response);
+    } catch (error: any) {
+      console.error(`Error during fetch or metadata retrieval at ${currentUrl}:`, error);
+      throw new Error(`Failed at URL ${currentUrl}: ` + error.message);
+    }
+
     urls.push({
-      rawUrl: location,
-      meta
+      rawUrl: currentUrl,
+      meta: metadata
     });
   }
 
@@ -48,7 +95,12 @@ const fetchWithRedirects = async (url: string) => {
   return urls;
 };
 
-const getMetadata = async (response: Response) => {
+type MetadataResponse = {
+  title: string;
+  description: string;
+};
+
+const getMetadata = async (response: Response): Promise<MetadataResponse> => {
   let title = '';
   let description = '';
 
@@ -69,6 +121,7 @@ const getMetadata = async (response: Response) => {
   try {
     await rewriter.transform(response).text(); // Ensure HTMLRewriter processes the entire document
   } catch (e: any) {
+    console.error('Failed to retrieve metadata from the following url:', response.url);
     return { title, description }; // if there's an error, just return the default data
   }
 
@@ -76,7 +129,7 @@ const getMetadata = async (response: Response) => {
 };
 
 export const fetchUrlData = async (url: string): Promise<AnalysisData> => {
-  const response = await fetcher(url, true);
+  const response = await fetcher(url, { follow: true });
   const sourceUrl = url;
   const destinationUrl = response.url;
   const redirects = await fetchWithRedirects(sourceUrl);
