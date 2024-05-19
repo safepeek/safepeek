@@ -5,7 +5,7 @@ SafePeek is a versatile Discord bot designed to enhance online safety and provid
 - **URL Expansion**: Converts shortened URLs to their original form, revealing the actual destination before clicking.
 - **Redirect Tracking**: Follows the trail of redirects to uncover the final destination of a shortened link.
 - **Metadata Extraction**: Retrieves essential metadata from the final URL, such as page title and description, to give users a sneak peek of the content.
-- **Safety Checks**: Analyzes URLs to identify potential security threats like malware or phishing sites. (Coming Soon)
+- **Safety Checks**: Analyzes URLs to identify potential security threats like malware or phishing sites.
 - **Serverless Architecture**: Built for a serverless environment and deployed as Cloudflare Workers, ensuring high availability, scalability, and reduced operational costs.
 
 ## Setup
