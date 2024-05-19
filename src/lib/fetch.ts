@@ -6,6 +6,7 @@ import {
 } from '@/types/url';
 import { Env } from '@/types';
 import { MakeProfileRequestProps, UserProfileDataResponse, UserProfileError } from '@/types/user';
+import { CommandStatEntry } from '@/types/stat';
 
 type FetcherOptions = {
   route: string;
@@ -104,4 +105,25 @@ export const makeProfileRequest = async (
       };
     }
   }
+};
+
+export const makeCommandStatRequest = async (data: CommandStatEntry, env: Env): Promise<boolean> => {
+  const response = await makeAPIRequest(
+    {
+      route: 'stats/command',
+      method: 'POST',
+      body: JSON.stringify(data)
+    },
+    env
+  );
+
+  if (!response.ok)
+    throw new Error(
+      JSON.stringify({
+        status: response.status,
+        message: response.statusText
+      })
+    );
+
+  return response.ok;
 };
