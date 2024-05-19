@@ -93,8 +93,6 @@ export default class ProfileSlashCommand extends SlashCommand {
       ctx
     })) as UserResponseSuccess;
 
-    ephemeral = userProfile.data.ephemeral!;
-
     const embed: APIEmbed = new EmbedBuilder()
       .setColor(EMBED_COLOR)
       .setAuthor(embedAuthor)
