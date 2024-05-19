@@ -1,9 +1,9 @@
 import { BaseSlashCreator, CommandContext, ComponentContext } from 'slash-create/web';
 import he from 'he';
 import { client } from '@/lib/db';
-import { fetchUrlData } from '@/lib/fetch';
+import { analyzeUrlRequest } from '@/lib/fetch';
 import { createFromAnalyzedUrlData } from '@/lib/db/utils';
-import { AnalyzeUrlResponse } from '@/types/url';
+import { AnalysisDataResponse, AnalyzeUrlDataError, AnalyzeUrlDataSuccess, AnalyzeUrlResponse } from '@/types/url';
 
 type AnalyzeUrlProps = {
   creator: BaseSlashCreator;
@@ -12,30 +12,24 @@ type AnalyzeUrlProps = {
 };
 
 export const analyzeUrl = async (props: AnalyzeUrlProps): Promise<AnalyzeUrlResponse> => {
-  const data = await fetchUrlData(props.url, props.creator.client);
+  const data = await analyzeUrlRequest(
+    {
+      url: props.url,
+      metadata: {
+        discordUserId: props.ctx.user.id,
+        discordChannelId: props.ctx.channelID,
+        discordGuildId: props.ctx.guildID
+      }
+    },
+    props.creator.client
+  );
 
-  if (!data.ok) throw new Error(data.data.code);
-
-  const dbClient = client(props.creator.client);
-  await dbClient.connect();
-
-  const id = await createFromAnalyzedUrlData({
-    dbClient,
-    analyzedUrlData: {
-      guildId: props.ctx.guildID ? BigInt(props.ctx.guildID) : null,
-      userId: BigInt(props.ctx.user.id),
-      channelId: BigInt(props.ctx.channelID),
-      redirects: data.data.redirects
-    }
-  });
-
-  // TODO: look into properly running dbClient.end() as the worker process is killed before the rest of the function can run
-  // await dbClient.end();
+  if (!data.ok) throw new Error((data as AnalyzeUrlDataError).data.code);
 
   return {
     ok: true,
-    data: data.data,
-    id
+    data: (data.data as AnalysisDataResponse).data,
+    id: (data.data as AnalysisDataResponse).id
   };
 };
 

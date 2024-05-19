@@ -26,15 +26,16 @@ import {
   urlButtons,
   urlSelectComponent
 } from '@/ui';
-import { fetchUrlData } from '@/lib/fetch';
+import { analyzeUrlRequest } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
 import { getUserProfile } from '@/lib/db/utils';
 import {
   AnalyzeUrlError,
   AnalyzeUrlResponse,
   AnalyzeUrlSuccess,
-  FetchUrlDataError,
-  FetchUrlDataResponse
+  AnalyzeUrlDataError,
+  AnalyzeUrlDataResponse,
+  AnalyzeUrlValidation
 } from '@/types/url';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
@@ -226,13 +227,24 @@ export default class AnalyzeMessageCommand extends SlashCommand {
     });
 
     props.ctx.registerComponent('safety_check_button', async (btnCtx) => {
-      let data: FetchUrlDataResponse, threatData: ThreatMatchResponse;
+      let data: AnalyzeUrlDataResponse, threatData: ThreatMatchResponse;
       try {
-        data = await fetchUrlData(selectedUrl, this.creator.client);
-        if (!data.ok) return new Error((data as FetchUrlDataError).data.code);
+        data = await analyzeUrlRequest(
+          {
+            url: selectedUrl,
+            metadata: {
+              discordUserId: btnCtx.user.id,
+              discordChannelId: btnCtx.channelID,
+              discordGuildId: btnCtx.guildID
+            },
+            validate: true
+          },
+          this.creator.client
+        );
+        if (!data.ok) return new Error((data as AnalyzeUrlDataError).data.code);
         threatData = await checkUrlsForThreats({
           apiKey: this.creator.client.GOOGLE_API_KEY,
-          urls: [data.data.destinationUrl]
+          urls: [(data.data as AnalyzeUrlValidation).destinationUrl]
         });
       } catch (e: any) {
         if (e === 'NO_MATCHES_FOUND') {
@@ -263,7 +275,6 @@ export default class AnalyzeMessageCommand extends SlashCommand {
       }
 
       const embed = threatEmbedBuilder({
-        input: data.data,
         threatData
       });
 

@@ -7,7 +7,6 @@ import { decode, truncate } from '@/lib/urls';
 import { ThreatMatchResponse } from '@/types/google';
 
 type ThreatEmbedInput = {
-  input: AnalysisData;
   threatData: ThreatMatchResponse;
 };
 

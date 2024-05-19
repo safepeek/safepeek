@@ -146,7 +146,6 @@ export default class AnalyzeSlashCommand extends SlashCommand {
       }
 
       const embed = threatEmbedBuilder({
-        input: data.data,
         threatData
       });
 
