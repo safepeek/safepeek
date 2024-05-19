@@ -3,7 +3,6 @@ declare const DISCORD_APP_ID: string;
 declare const DISCORD_PUBLIC_KEY: string;
 declare const DISCORD_BOT_TOKEN: string;
 declare const DEVELOPMENT_GUILD_ID: string;
-declare const POSTGRES_URL: string;
 declare const NODE_ENV: string;
 declare const GOOGLE_API_KEY: string;
 declare const LAST_COMMIT: string;

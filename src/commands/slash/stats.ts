@@ -11,7 +11,7 @@ import { EmbedBuilder } from '@discordjs/builders';
 
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
-import { getUserProfile } from '@/lib/db/utils';
+import { getUserProfile } from '@/lib/utils';
 import { errorEmbedBuilder } from '@/ui';
 import { UserResponseError } from '@/types/user';
 

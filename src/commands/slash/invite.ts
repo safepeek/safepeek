@@ -8,7 +8,7 @@ import {
 } from 'slash-create/web';
 
 import { BOT_INVITE } from '@/lib/constants';
-import { getUserProfile } from '@/lib/db/utils';
+import { getUserProfile } from '@/lib/utils';
 import { errorEmbedBuilder } from '@/ui';
 import { UserResponseError } from '@/types/user';
 

@@ -11,7 +11,7 @@ import { APIEmbed } from 'discord-api-types/v10';
 import { EmbedBuilder } from '@discordjs/builders';
 
 import { EMBED_COLOR } from '@/lib/constants';
-import { getUserProfile, updateUserProfile } from '@/lib/db/utils';
+import { getUserProfile, updateUserProfile } from '@/lib/utils';
 import { EmbedAuthor } from 'slash-create/lib/structures/message';
 import { errorEmbedBuilder } from '@/ui';
 import { UserResponseError, UserResponseSuccess } from '@/types/user';

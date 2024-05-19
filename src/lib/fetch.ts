@@ -10,6 +10,7 @@ import { MakeProfileRequestProps, UserProfileDataResponse, UserProfileError } fr
 type FetcherOptions = {
   route: string;
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
+  // eslint-disable-next-line no-undef
   body?: BodyInit;
 };
 

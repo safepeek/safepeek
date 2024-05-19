@@ -11,7 +11,7 @@ import {
 import { EmbedBuilder } from '@discordjs/builders';
 import { stripIndents } from 'common-tags';
 
-import { getUserProfile } from '@/lib/db/utils';
+import { getUserProfile } from '@/lib/utils';
 import { APP_NAME, EMBED_COLOR, WEBSITE } from '@/lib/constants';
 import { errorEmbedBuilder } from '@/ui';
 import { UserResponseError } from '@/types/user';

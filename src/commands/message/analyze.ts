@@ -28,7 +28,7 @@ import {
 } from '@/ui';
 import { analyzeUrlRequest } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
-import { getUserProfile } from '@/lib/db/utils';
+import { getUserProfile } from '@/lib/utils';
 import {
   AnalyzeUrlError,
   AnalyzeUrlResponse,

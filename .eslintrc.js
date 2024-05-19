@@ -10,7 +10,6 @@ module.exports = {
     DISCORD_PUBLIC_KEY: true,
     DISCORD_BOT_TOKEN: true,
     DEVELOPMENT_GUILD_ID: true,
-    POSTGRES_URL: true,
     NODE_ENV: true,
     GOOGLE_API_KEY: true,
     LAST_COMMIT: true,

@@ -21,7 +21,7 @@ import {
   threatEmbedNoHits
 } from '@/ui';
 import { analyzeUrl } from '@/lib/urls';
-import { getUserProfile } from '@/lib/db/utils';
+import { getUserProfile } from '@/lib/utils';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
 import { AnalyzeUrlError, AnalyzeUrlResponse, AnalyzeUrlSuccess } from '@/types/url';

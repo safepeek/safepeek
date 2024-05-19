@@ -6,7 +6,7 @@ import {
   CommandOptionType,
   InteractionContextType
 } from 'slash-create/web';
-import { getUserProfile } from '@/lib/db/utils';
+import { getUserProfile } from '@/lib/utils';
 import { errorEmbedBuilder } from '@/ui';
 import { UserResponseError } from '@/types/user';
 

@@ -1,9 +1,7 @@
 import { BaseSlashCreator, CommandContext, ComponentContext } from 'slash-create/web';
 import he from 'he';
-import { client } from '@/lib/db';
 import { analyzeUrlRequest } from '@/lib/fetch';
-import { createFromAnalyzedUrlData } from '@/lib/db/utils';
-import { AnalysisDataResponse, AnalyzeUrlDataError, AnalyzeUrlDataSuccess, AnalyzeUrlResponse } from '@/types/url';
+import { AnalysisDataResponse, AnalyzeUrlDataError, AnalyzeUrlResponse } from '@/types/url';
 
 type AnalyzeUrlProps = {
   creator: BaseSlashCreator;
