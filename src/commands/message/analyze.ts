@@ -39,6 +39,7 @@ import {
 } from '@/types/url';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
+import { UserResponseError } from '@/types/user';
 
 type HandleUrlProps = {
   ctx: ComponentContext | CommandContext;
@@ -63,12 +64,14 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const userProfile = await getUserProfile({
+    const profile = await getUserProfile({
       creator: this.creator,
       ctx
     });
 
-    const ephemeral = userProfile.ephemeral ?? true;
+    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
+
+    const ephemeral = profile.data.ephemeral ?? true;
 
     await ctx.defer(ephemeral);
 

@@ -14,6 +14,7 @@ import { stripIndents } from 'common-tags';
 import { getUserProfile } from '@/lib/db/utils';
 import { APP_NAME, EMBED_COLOR, WEBSITE } from '@/lib/constants';
 import { errorEmbedBuilder } from '@/ui';
+import { UserResponseError } from '@/types/user';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -48,8 +49,10 @@ export default class HelpSlashCommand extends SlashCommand {
       ctx
     });
 
+    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
 
     const analyzeSlashCommandId: string =
       this.creator.client.NODE_ENV === 'production' ? '1210526106634027019' : '1210506556710588487';

@@ -25,6 +25,7 @@ import { getUserProfile } from '@/lib/db/utils';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
 import { AnalyzeUrlError, AnalyzeUrlResponse, AnalyzeUrlSuccess } from '@/types/url';
+import { UserResponseError } from '@/types/user';
 
 type OptionTypes = {
   url: string;
@@ -61,13 +62,15 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const userProfile = await getUserProfile({
+    const profile = await getUserProfile({
       creator: this.creator,
       ctx
     });
 
+    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? userProfile.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
 
     await ctx.defer(ephemeral);
 

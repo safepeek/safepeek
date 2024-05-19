@@ -8,6 +8,7 @@ import {
 } from 'slash-create/web';
 import { getUserProfile } from '@/lib/db/utils';
 import { errorEmbedBuilder } from '@/ui';
+import { UserResponseError } from '@/types/user';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -42,8 +43,10 @@ export default class PingSlashCommand extends SlashCommand {
       ctx
     });
 
+    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
 
     return ctx.send({
       content: 'Pong!',

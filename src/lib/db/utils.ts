@@ -6,6 +6,16 @@ import { analyzedUrlResults, analyzedUrlRevisions, analyzedUrls, guilds, users }
 import { and, eq, isNull } from 'drizzle-orm';
 import { BaseSlashCreator } from 'slash-create/lib/creator';
 import { CommandContext } from 'slash-create/lib/structures/interfaces/commandContext';
+import { makeProfileRequest } from '@/lib/fetch';
+import { Env } from '@/types';
+import {
+  CommandMetadata,
+  UserProfileDataResponse,
+  UserProfileError,
+  UserResponseError,
+  UserResponseSuccess
+} from '@/types/user';
+import { SlashCreator } from 'slash-create/web';
 
 async function sha256(data: string) {
   const encoder = new TextEncoder();
@@ -148,25 +158,32 @@ async function createAnalyzedUrlResult(props: CreateAnalyzedUrlResultProps) {
 }
 
 export type ProfileData = {
-  discordUserId: bigint | string;
+  discordUserId: string;
   data: {
-    ephemeral: boolean;
+    ephemeral?: boolean;
   };
 };
 
 type UpdateProfileDataProps = {
-  dbClient: Client;
   data: ProfileData;
+  metadata: CommandMetadata;
+  env: Env;
 };
 
 export async function updateProfileData(props: UpdateProfileDataProps) {
-  const db = database(props.dbClient);
-
-  return db
-    .update(users)
-    .set(props.data.data)
-    .where(eq(users.discordId, props.data.discordUserId as bigint))
-    .returning();
+  return makeProfileRequest(
+    {
+      method: 'update',
+      discordUserId: props.data.discordUserId,
+      data: props.data.data,
+      metadata: {
+        discordUserId: props.metadata.discordUserId,
+        discordChannelId: props.metadata.discordChannelId,
+        discordGuildId: props.metadata.discordGuildId
+      }
+    },
+    props.env
+  );
 }
 
 type CreateAnalyzedUrlDataProps = {
@@ -212,36 +229,44 @@ type GetUserProfileProps = {
   ctx: CommandContext;
 };
 
-export async function getUserProfile(props: GetUserProfileProps) {
-  const dbClient = client(props.creator.client);
-  await dbClient.connect();
-  const db = database(dbClient);
+export async function getUserProfile(props: GetUserProfileProps): Promise<UserProfileDataResponse> {
+  const data = await makeProfileRequest(
+    {
+      discordUserId: props.ctx.user.id,
+      method: 'get'
+    },
+    props.creator.client
+  );
 
-  return db.transaction((tx) => {
-    return upsertUser(BigInt(props.ctx.user.id), tx);
-  });
+  if (!data.ok) throw new Error((data as UserResponseError).data.code);
+
+  return {
+    ok: true,
+    data: data.data
+  };
 }
 
 type UpdateUserProfileProps = GetUserProfileProps & {
   data: ProfileData;
+  ctx: CommandContext;
+  creator: BaseSlashCreator;
 };
 
-type UpdateUserProfileResponse = {
-  data: ProfileData;
-  id: string;
-};
-
-export async function updateUserProfile(props: UpdateUserProfileProps): Promise<UpdateUserProfileResponse> {
-  const dbClient = client(props.creator.client);
-  await dbClient.connect();
-
-  const [data] = await updateProfileData({
-    dbClient,
-    data: props.data
+export async function updateUserProfile(props: UpdateUserProfileProps): Promise<UserProfileDataResponse> {
+  const data = await updateProfileData({
+    data: props.data,
+    metadata: {
+      discordUserId: props.ctx.user.id,
+      discordChannelId: props.ctx.channelID,
+      discordGuildId: props.ctx.guildID
+    },
+    env: props.creator.client
   });
 
-  // TODO: look into properly running dbClient.end() as the worker process is killed before the rest of the function can run
-  // await dbClient.end();
+  if (!data.ok) throw new Error((data as UserResponseError).data.code);
 
-  return { data: props.data, id: data.id };
+  return {
+    ok: true,
+    data: data.data
+  };
 }

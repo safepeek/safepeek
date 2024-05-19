@@ -21,6 +21,7 @@ import {
 } from '@/lib/constants';
 import { getUserProfile } from '@/lib/db/utils';
 import { errorEmbedBuilder } from '@/ui';
+import { UserResponseError } from '@/types/user';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -50,13 +51,15 @@ export default class AboutSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const userProfile = await getUserProfile({
+    const profile = await getUserProfile({
       creator: this.creator,
       ctx
     });
 
+    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
+
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? userProfile.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
 
     const date = new Date();
     const COMMIT_HASH = this.creator.client.LAST_COMMIT;

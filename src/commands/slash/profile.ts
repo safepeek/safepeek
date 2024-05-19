@@ -14,6 +14,7 @@ import { EMBED_COLOR } from '@/lib/constants';
 import { getUserProfile, updateUserProfile } from '@/lib/db/utils';
 import { EmbedAuthor } from 'slash-create/lib/structures/message';
 import { errorEmbedBuilder } from '@/ui';
+import { UserResponseError, UserResponseSuccess } from '@/types/user';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -56,14 +57,16 @@ export default class ProfileSlashCommand extends SlashCommand {
         creator: this.creator,
         ctx,
         data: {
-          discordUserId: ctx.user.id,
           data: {
             ephemeral: options.ephemeral ?? true
-          }
+          },
+          discordUserId: ctx.user.id
         }
       });
 
-      ephemeral = userProfile.data.data.ephemeral;
+      if (!userProfile.ok) throw new Error((userProfile as UserResponseError).data.code);
+
+      ephemeral = userProfile.data.ephemeral!;
 
       const embed: APIEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOR)
@@ -74,7 +77,7 @@ export default class ProfileSlashCommand extends SlashCommand {
         `
         )
         .setFooter({
-          text: userProfile.id
+          text: userProfile.data.id
         })
         .setTimestamp()
         .toJSON();
@@ -85,23 +88,23 @@ export default class ProfileSlashCommand extends SlashCommand {
       });
     }
 
-    const userProfile = await getUserProfile({
+    const userProfile = (await getUserProfile({
       creator: this.creator,
       ctx
-    });
+    })) as UserResponseSuccess;
 
-    ephemeral = userProfile.ephemeral!;
+    ephemeral = userProfile.data.ephemeral!;
 
     const embed: APIEmbed = new EmbedBuilder()
       .setColor(EMBED_COLOR)
       .setAuthor(embedAuthor)
       .setDescription(
         stripIndents`
-        **Ephemeral**: ${userProfile.ephemeral}
+        **Ephemeral**: ${userProfile.data.ephemeral!}
       `
       )
       .setFooter({
-        text: userProfile.id
+        text: userProfile.data.id
       })
       .setTimestamp()
       .toJSON();
