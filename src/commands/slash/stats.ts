@@ -53,6 +53,8 @@ export default class StatsSlashCommand extends SlashCommand {
     const options = ctx.options as OptionTypes;
     const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
 
+    await ctx.defer(ephemeral);
+
     const appInfo = await ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', {
       auth: true
     });
