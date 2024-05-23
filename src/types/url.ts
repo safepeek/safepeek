@@ -1,10 +1,4 @@
-export type AnalysisData = {
-  title: string;
-  description: string;
-  sourceUrl: string;
-  destinationUrl: string;
-  redirects: AnalyzedUrlRedirect[];
-};
+import { AnalysisData } from '@safepeek/utils';
 
 export type AnalysisDataResponse = {
   data: AnalysisData;
@@ -33,23 +27,6 @@ export type AnalyzeUrlValidation = {
 };
 
 export type AnalyzeUrlDataResponse = AnalyzeUrlDataSuccess | AnalyzeUrlDataError;
-
-export interface AnalyzedUrl {
-  guildId: bigint | null;
-  userId: bigint;
-  channelId: bigint;
-  redirects: AnalyzedUrlRedirect[];
-}
-
-export interface AnalyzedUrlRedirect {
-  rawUrl: string;
-  meta: AnalyzedUrlRedirectMetadata;
-}
-
-export interface AnalyzedUrlRedirectMetadata {
-  title: string;
-  description: string;
-}
 
 export type AnalyzeUrlSuccess = {
   ok: true;

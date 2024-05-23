@@ -2,7 +2,7 @@ import { SlashCreator, CloudflareWorkerServer } from 'slash-create/web';
 
 import { commands } from './commands';
 import { Env } from '@/types';
-import { CommandStatEntry } from '@/types/stat';
+import { CommandStatEntry } from '@safepeek/utils';
 import { makeCommandStatRequest } from '@/lib/fetch';
 import { errorEmbedBuilder } from '@/ui';
 
@@ -29,15 +29,15 @@ function makeCreator(env: Env) {
       type: command.type,
       options: ctx.options,
       context: ctx.context ?? null,
-      integrationTypes: command.integrationTypes,
+      integration_types: command.integrationTypes,
       metadata: {
-        userId: ctx.user.id,
-        channelId: ctx.channelID,
-        guildId: ctx.guildID ?? null,
+        user_id: ctx.user.id,
+        channel_id: ctx.channelID,
+        guild_id: ctx.guildID ?? null,
         locale: ctx.locale ?? null,
-        guildLocale: ctx.guildLocale ?? null,
-        interactionId: ctx.interactionID,
-        invokedAt: ctx.invokedAt
+        guild_locale: ctx.guildLocale ?? null,
+        interaction_id: ctx.interactionID,
+        invoked_at: ctx.invokedAt
       }
     };
 
