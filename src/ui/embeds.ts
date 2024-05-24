@@ -1,7 +1,7 @@
 import { oneLine, stripIndents } from 'common-tags';
 import { EmbedBuilder } from '@discordjs/builders';
 import { APIEmbed } from 'discord-api-types/v10';
-import { AnalysisData } from '@/types/url';
+import { AnalysisData } from '@safepeek/utils';
 import { APP_NAME, EMBED_COLOR, EMBED_COLOR_ERROR } from '@/lib/constants';
 import { decode, truncate } from '@/lib/urls';
 import { ThreatMatchResponse } from '@/types/google';
