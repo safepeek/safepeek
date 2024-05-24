@@ -5,6 +5,7 @@ import { Env } from '@/types';
 import { CommandStatEntry } from '@safepeek/utils';
 import { makeCommandStatRequest } from '@/lib/fetch';
 import { errorEmbedBuilder } from '@/ui';
+import { APP_VERSION } from '@/lib/constants';
 
 const cfServer = new CloudflareWorkerServer();
 let creator: SlashCreator;
@@ -37,7 +38,10 @@ function makeCreator(env: Env) {
         locale: ctx.locale ?? null,
         guild_locale: ctx.guildLocale ?? null,
         interaction_id: ctx.interactionID,
-        invoked_at: ctx.invokedAt
+        invoked_at: ctx.invokedAt,
+        bot_version: APP_VERSION,
+        last_commit: env.LAST_COMMIT_SHORT,
+        environment: env.NODE_ENV
       }
     };
 
