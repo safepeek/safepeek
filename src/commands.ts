@@ -7,5 +7,7 @@ export const commands = [
   require('./commands/slash/support'),
   require('./commands/slash/stats'),
   require('./commands/slash/profile'),
-  require('./commands/slash/help')
+  require('./commands/slash/help'),
+  require('./commands/slash/vote'),
+  require('./commands/slash/changelog')
 ];

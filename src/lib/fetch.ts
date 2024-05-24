@@ -5,8 +5,9 @@ import {
   AnalyzeUrlValidation
 } from '@/types/url';
 import { Env } from '@/types';
+import { CommandStatEntry } from '@safepeek/utils';
 import { MakeProfileRequestProps, UserProfileDataResponse, UserProfileError } from '@/types/user';
-import { CommandStatEntry } from '@/types/stat';
+import { APP_VERSION } from '@/lib/constants';
 
 type FetcherOptions = {
   route: string;
@@ -14,6 +15,8 @@ type FetcherOptions = {
   // eslint-disable-next-line no-undef
   body?: BodyInit;
 };
+
+const USER_AGENT = `SafePeekBot/v${APP_VERSION}`;
 
 export const makeAPIRequest = (options: FetcherOptions, env: Env) => {
   return fetch(env.API_BASE_ROUTE + options.route, {
@@ -126,4 +129,31 @@ export const makeCommandStatRequest = async (data: CommandStatEntry, env: Env): 
     );
 
   return response.ok;
+};
+
+// TODO: add in access token
+export const makeGitHubAPIRequest = async (options: FetcherOptions, env: Env) => {
+  const baseRoute: string = 'https://api.github.com/repos/safepeek/safepeek';
+
+  const response = await fetch(baseRoute + options.route, {
+    method: options.method ?? 'GET',
+    headers: {
+      'User-Agent': USER_AGENT,
+      Accept: 'application/vnd.github+json',
+      Authorization: `token ${env.GITHUB_TOKEN}`
+    },
+    body: options.body ?? undefined
+  });
+
+  console.log('url', response.url);
+
+  if (!response.ok)
+    throw new Error(
+      JSON.stringify({
+        status: response.status,
+        message: response.statusText
+      })
+    );
+
+  return (await response.json()) as Record<string, unknown>;
 };

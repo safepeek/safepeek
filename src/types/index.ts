@@ -10,4 +10,5 @@ export type Env = {
   NODE_ENV: string;
   API_KEY: string;
   API_BASE_ROUTE: string;
+  GITHUB_TOKEN: string;
 };

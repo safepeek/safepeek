@@ -16,7 +16,8 @@ module.exports = {
     LAST_COMMIT_SHORT: true,
     CF_DEPLOYMENT_ID: true,
     API_KEY: true,
-    API_BASE_ROUTE: true
+    API_BASE_ROUTE: true,
+    GITHUB_TOKEN: true
   },
   parser: '@typescript-eslint/parser',
   parserOptions: {

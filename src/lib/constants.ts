@@ -1,4 +1,5 @@
 import packageJson from '../../package.json';
+import { BotList } from '@/types/lists';
 
 export const EMBED_COLOR: number = 0x74b9ff;
 export const EMBED_COLOR_ERROR: number = 0xd63031;
@@ -16,3 +17,11 @@ export const GUILD_INSTALL_LINK: string =
   'https://discord.com/oauth2/authorize?client_id=1208283559799029760&permissions=274878024704&scope=bot+applications.commands';
 export const USER_INSTALL_LINK: string =
   'https://discord.com/oauth2/authorize?client_id=1208283559799029760&scope=applications.commands&integration_type=1';
+
+export const BOT_LISTS: BotList[] = [
+  {
+    name: 'top.gg',
+    url: 'https://top.gg/bot/1208283559799029760',
+    voteLink: 'https://top.gg/bot/1208283559799029760/vote'
+  }
+];
