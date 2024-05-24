@@ -7,10 +7,11 @@ import {
   InteractionContextType
 } from 'slash-create/web';
 
-import { BOT_INVITE } from '@/lib/constants';
+import { APP_NAME, GUILD_INSTALL_LINK, USER_INSTALL_LINK } from '@/lib/constants';
 import { getUserProfile } from '@/lib/utils';
 import { errorEmbedBuilder } from '@/ui';
 import { UserResponseError } from '@/types/user';
+import { stripIndents } from 'common-tags';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -51,7 +52,12 @@ export default class InviteSlashCommand extends SlashCommand {
     const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
 
     return ctx.send({
-      content: BOT_INVITE,
+      content: stripIndents`
+      - [**\`Add to Guild\`**](${GUILD_INSTALL_LINK})
+      - [**\`Add to User\`**](${USER_INSTALL_LINK}) \*
+      
+      > *Adding the bot application to your account will allow the bot to be used globally, including guilds where the application is not installed. Guild administrators may restrict the usage of application commands, preventing **\`${APP_NAME}\`** from being used in those guilds.*
+      `,
       ephemeral
     });
   }
