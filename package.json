@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@discordjs/builders": "^1.7.0",
-    "@safepeek/utils": "^1.0.1",
+    "@safepeek/utils": "^1.1.0",
     "common-tags": "^1.8.2",
     "discord-api-types": "^0.37.77",
     "extract-urls": "^1.4.1",
