@@ -1,7 +1,7 @@
 name = "safepeek"
 main = "src/index.ts"
 compatibility_date = "2024-01-29"
-node_compat = true
+compatibility_flags = ["nodejs_compat"]
 
 vars = { NODE_ENV = "production" }
 

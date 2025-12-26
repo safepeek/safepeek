@@ -2,7 +2,7 @@ import {
   AnyComponentButton,
   ButtonStyle,
   ComponentButtonLink,
-  ComponentSelectMenu,
+  ComponentStringSelect,
   ComponentType
 } from 'slash-create/web';
 
@@ -12,7 +12,7 @@ type DiscordMessageUrlData = {
   messageId: string;
 };
 
-export const urlSelectComponent: ComponentSelectMenu = {
+export const urlSelectComponent: ComponentStringSelect = {
   type: ComponentType.STRING_SELECT,
   custom_id: 'url_select',
   placeholder: 'Choose a URL',

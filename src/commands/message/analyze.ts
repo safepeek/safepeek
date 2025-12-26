@@ -6,7 +6,7 @@ import {
   ComponentActionRow,
   ComponentButton,
   ComponentContext,
-  ComponentSelectMenu,
+  ComponentStringSelect,
   ComponentSelectOption,
   ComponentType,
   InteractionContextType,
@@ -45,7 +45,7 @@ type HandleUrlProps = {
   ctx: ComponentContext | CommandContext;
   selectedUrl: string;
   ephemeral: boolean;
-  urlSelectComponent: ComponentSelectMenu;
+  urlSelectComponent: ComponentStringSelect;
 };
 
 export default class AnalyzeMessageCommand extends SlashCommand {

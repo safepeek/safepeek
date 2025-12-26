@@ -12,7 +12,7 @@ import { APP_VERSION } from '@/lib/constants';
 type FetcherOptions = {
   route: string;
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-  // eslint-disable-next-line no-undef
+
   body?: BodyInit;
 };
 
