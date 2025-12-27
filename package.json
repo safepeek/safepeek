@@ -25,6 +25,11 @@
     "url": "https://github.com/safepeek/safepeek/issues"
   },
   "homepage": "https://github.com/safepeek/safepeek#readme",
+  "pnpm": {
+    "overrides": {
+      "esbuild@<=0.24.2": ">=0.25.0"
+    }
+  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20251225.0",
     "@types/common-tags": "^1.8.4",
