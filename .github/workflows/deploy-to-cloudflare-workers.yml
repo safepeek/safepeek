@@ -49,14 +49,28 @@ jobs:
             echo "${{ env.COMMIT_HASH_SHORT }}" | wrangler secret put LAST_COMMIT_SHORT
             echo "******"
 
-      - name: Get new cloudflare deployment id
+      - name: Get Cloudflare deployment id
         env:
           CMD_OUTPUT: ${{ steps.deploy.outputs.command-output }}
         run: |
-          echo "*** get the cloudflare deployment id ***"
-          echo $CMD_OUTPUT > output.txt
-          echo "DEPLOYMENT_ID=$(sed -n 's/^.*Current Deployment ID: \([^ ]*\).*$/\1/p' output.txt)" >> $GITHUB_ENV
-          echo "******"
+          set -euo pipefail
+      
+          printf "%s\n" "$CMD_OUTPUT" > output.txt
+      
+          DEPLOYMENT_ID="$(
+            sed -nE 's/^Version\(s\):.* ([0-9a-f-]{36}).*$/\1/p' output.txt \
+            | head -n 1 \
+            | cut -d'-' -f1
+          )"
+      
+          if [ -z "$DEPLOYMENT_ID" ]; then
+            echo "ERROR: Could not extract deployment id"
+            cat output.txt
+            exit 1
+          fi
+      
+          echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> "$GITHUB_ENV"
+          echo "Deployment ID: $DEPLOYMENT_ID"
 
       - name: Print new cloudflare deployment id
         run: |
