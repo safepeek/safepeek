@@ -67,7 +67,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: deployments view
+          command: deployments status
           postCommands: |
             echo "*** get the cloudflare deployment id ***"
             echo "${{ env.DEPLOYMENT_ID }}" | wrangler secret put CF_DEPLOYMENT_ID
