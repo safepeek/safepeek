@@ -103,6 +103,30 @@ fix(ci): display correct deployment ID in GitHub Action
 chore: bump version to v1.3.2
 ```
 
+## Release Process
+
+Follow [Semantic Versioning](https://semver.org/) for releases:
+
+- **MAJOR** (`x.0.0`) - Breaking changes
+- **MINOR** (`0.x.0`) - New features (backwards compatible)
+- **PATCH** (`0.0.x`) - Bug fixes
+
+**Steps to prepare a release:**
+
+1. Update version in `package.json`
+2. Commit with `chore: bump version to vX.X.X`
+3. Create git tag: `git tag vX.X.X`
+4. Push with tags: `git push && git push --tags`
+5. Ask if user wants to add any specific notes to the release
+6. Create draft release with auto-generated notes from commits:
+   ```bash
+   gh release create vX.X.X --draft --generate-notes
+   # Or with additional notes:
+   gh release create vX.X.X --draft --generate-notes --notes "Additional notes here"
+   ```
+
+Draft release is pending final review on GitHub. Publishing is done manually via GitHub UI, which triggers the Cloudflare deployment workflow.
+
 ## Environment Variables
 
 Required in `.env`:
