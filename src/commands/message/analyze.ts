@@ -28,7 +28,7 @@ import {
 } from '@/ui';
 import { analyzeUrlRequest } from '@/lib/fetch';
 import { analyzeUrl, truncate } from '@/lib/urls';
-import { getUserProfile } from '@/lib/utils';
+import { resolveEphemeral } from '@/lib/cache';
 import {
   AnalyzeUrlError,
   AnalyzeUrlResponse,
@@ -39,7 +39,7 @@ import {
 } from '@/types/url';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
-import { UserResponseError } from '@/types/user';
+import { Env } from '@/types';
 
 type HandleUrlProps = {
   ctx: ComponentContext | CommandContext;
@@ -64,14 +64,8 @@ export default class AnalyzeMessageCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const profile = await getUserProfile({
-      creator: this.creator,
-      ctx
-    });
-
-    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
-
-    const ephemeral = profile.data.ephemeral ?? true;
+    const env = this.creator.client as Env;
+    const ephemeral = await resolveEphemeral(ctx.user.id, env);
 
     await ctx.defer(ephemeral);
 

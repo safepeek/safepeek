@@ -9,6 +9,10 @@ vars = { NODE_ENV = "production" }
 binding = "CONFIG"
 id = "016a364fc2854b758ee01504fdf01b72"
 
+[[kv_namespaces]]
+binding = "USER_CACHE"
+id = "83debe59d30c4b92ae726ef5fcd39842"
+
 [env.development]
 
 [placement]

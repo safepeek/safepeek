@@ -21,11 +21,11 @@ import {
   threatEmbedNoHits
 } from '@/ui';
 import { analyzeUrl } from '@/lib/urls';
-import { getUserProfile } from '@/lib/utils';
+import { resolveEphemeral } from '@/lib/cache';
 import { ThreatMatchResponse } from '@/types/google';
 import { checkUrlsForThreats } from '@/lib/google';
 import { AnalyzeUrlError, AnalyzeUrlResponse, AnalyzeUrlSuccess } from '@/types/url';
-import { UserResponseError } from '@/types/user';
+import { Env } from '@/types';
 
 type OptionTypes = {
   url: string;
@@ -62,15 +62,9 @@ export default class AnalyzeSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const profile = await getUserProfile({
-      creator: this.creator,
-      ctx
-    });
-
-    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
-
+    const env = this.creator.client as Env;
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? (await resolveEphemeral(ctx.user.id, env));
 
     await ctx.defer(ephemeral);
 

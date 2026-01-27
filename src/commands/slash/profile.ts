@@ -12,8 +12,10 @@ import { EmbedBuilder } from '@discordjs/builders';
 
 import { EMBED_COLOR } from '@/lib/constants';
 import { getUserProfile, updateUserProfile } from '@/lib/utils';
+import { cacheEphemeral } from '@/lib/cache';
 import { EmbedAuthor } from 'slash-create/lib/structures/message';
 import { errorEmbedBuilder } from '@/ui';
+import { Env } from '@/types';
 import { UserResponseError, UserResponseSuccess } from '@/types/user';
 
 type OptionTypes = {
@@ -51,6 +53,8 @@ export default class ProfileSlashCommand extends SlashCommand {
       icon_url: ctx.user.avatarURL
     };
 
+    const env = this.creator.client as Env;
+
     let ephemeral: boolean;
     if (options.ephemeral !== undefined) {
       const userProfile = await updateUserProfile({
@@ -67,6 +71,8 @@ export default class ProfileSlashCommand extends SlashCommand {
       if (!userProfile.ok) throw new Error((userProfile as UserResponseError).data.code);
 
       ephemeral = userProfile.data.ephemeral!;
+
+      await cacheEphemeral(ctx.user.id, ephemeral, env);
 
       const embed: APIEmbed = new EmbedBuilder()
         .setColor(EMBED_COLOR)
