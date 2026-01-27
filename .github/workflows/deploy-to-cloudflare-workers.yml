@@ -42,11 +42,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          preCommands: |
-            echo "*** update last commit variables ***"
-            echo "${{ env.COMMIT_HASH_FULL }}" | wrangler secret put LAST_COMMIT
-            echo "${{ env.COMMIT_HASH_SHORT }}" | wrangler secret put LAST_COMMIT_SHORT
-            echo "******"
 
       - name: Get new cloudflare deployment id
         env:
@@ -56,17 +51,12 @@ jobs:
           echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> "$GITHUB_ENV"
           echo "Deployment ID: $DEPLOYMENT_ID"
 
-      - name: Print new cloudflare deployment id
-        run: |
-          echo "Current Deployment ID: $DEPLOYMENT_ID"
-
-      - name: Set new cloudflare deployment id
+      - name: Save deployment metadata to KV
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: deployments status
+          command: kv:key put --binding=CONFIG "DEPLOYMENT_ID" "${{ env.DEPLOYMENT_ID }}"
           postCommands: |
-            echo "*** get the cloudflare deployment id ***"
-            echo "${{ env.DEPLOYMENT_ID }}" | wrangler secret put CF_DEPLOYMENT_ID
-            echo "******"
+            wrangler kv:key put --binding=CONFIG "LAST_COMMIT" "${{ env.COMMIT_HASH_FULL }}"
+            wrangler kv:key put --binding=CONFIG "LAST_COMMIT_SHORT" "${{ env.COMMIT_HASH_SHORT }}"

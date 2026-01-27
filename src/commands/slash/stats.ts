@@ -11,8 +11,10 @@ import { EmbedBuilder } from '@discordjs/builders';
 
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
+import { getCommitHash, getCommitHashShort, getDeploymentId } from '@/lib/config';
 import { getUserProfile } from '@/lib/utils';
 import { errorEmbedBuilder } from '@/ui';
+import { Env } from '@/types';
 import { UserResponseError } from '@/types/user';
 
 type OptionTypes = {
@@ -55,13 +57,14 @@ export default class StatsSlashCommand extends SlashCommand {
 
     await ctx.defer(ephemeral);
 
-    const appInfo = await ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', {
-      auth: true
-    });
+    const env = this.creator.client as Env;
 
-    const COMMIT_HASH = this.creator.client.LAST_COMMIT;
-    const COMMIT_HASH_SHORT = this.creator.client.LAST_COMMIT_SHORT;
-    const CF_DEPLOYMENT_ID = this.creator.client.CF_DEPLOYMENT_ID.split('-')[0];
+    const [appInfo, deploymentId, commitHash, commitHashShort] = await Promise.all([
+      ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', { auth: true }),
+      getDeploymentId(env),
+      getCommitHash(env),
+      getCommitHashShort(env)
+    ]);
 
     const guildCount = appInfo.approximate_guild_count;
     const slashCreateVersion = packageJson.devDependencies['slash-create'];
@@ -77,12 +80,12 @@ export default class StatsSlashCommand extends SlashCommand {
         },
         {
           name: 'Version',
-          value: `${APP_VERSION} [\`[${COMMIT_HASH_SHORT}]\`](${APP_GITHUB}/commit/${COMMIT_HASH})`,
+          value: `${APP_VERSION} [\`[${commitHashShort}]\`](${APP_GITHUB}/commit/${commitHash})`,
           inline: true
         },
         {
           name: 'Deployment',
-          value: `\`${CF_DEPLOYMENT_ID}\``,
+          value: `\`${deploymentId}\``,
           inline: true
         },
         {

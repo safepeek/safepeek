@@ -3,6 +3,7 @@ import { SlashCreator, CloudflareWorkerServer } from 'slash-create/web';
 import { commands } from './commands';
 import { Env } from '@/types';
 import { CommandStatEntry } from '@safepeek/utils';
+import { getCommitHashShort } from '@/lib/config';
 import { makeCommandStatRequest } from '@/lib/fetch';
 import { errorEmbedBuilder } from '@/ui';
 import { APP_VERSION } from '@/lib/constants';
@@ -40,7 +41,7 @@ function makeCreator(env: Env) {
         interaction_id: ctx.interactionID,
         invoked_at: ctx.invokedAt,
         bot_version: APP_VERSION,
-        last_commit: env.LAST_COMMIT_SHORT,
+        last_commit: await getCommitHashShort(env),
         environment: env.NODE_ENV
       }
     };
