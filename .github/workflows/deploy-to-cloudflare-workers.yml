@@ -56,7 +56,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: kv key put --binding=CONFIG "DEPLOYMENT_ID" "${{ env.DEPLOYMENT_ID }}"
+          command: kv key put --binding=CONFIG --remote "DEPLOYMENT_ID" "${{ env.DEPLOYMENT_ID }}"
           postCommands: |
-            wrangler kv key put --binding=CONFIG "LAST_COMMIT" "${{ env.COMMIT_HASH_FULL }}"
-            wrangler kv key put --binding=CONFIG "LAST_COMMIT_SHORT" "${{ env.COMMIT_HASH_SHORT }}"
+            wrangler kv key put --binding=CONFIG --remote "LAST_COMMIT" "${{ env.COMMIT_HASH_FULL }}"
+            wrangler kv key put --binding=CONFIG --remote "LAST_COMMIT_SHORT" "${{ env.COMMIT_HASH_SHORT }}"
