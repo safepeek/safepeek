@@ -31,7 +31,7 @@
     }
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20251225.0",
+    "@cloudflare/workers-types": "^4.20260127.0",
     "@types/common-tags": "^1.8.4",
     "@types/he": "^1.2.3",
     "@types/node": "^25.0.3",
@@ -46,7 +46,7 @@
     "slash-up": "^1.4.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "wrangler": "^4.54.0"
+    "wrangler": "^4.60.0"
   },
   "dependencies": {
     "@discordjs/builders": "^1.13.1",
