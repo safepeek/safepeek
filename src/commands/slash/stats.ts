@@ -11,7 +11,7 @@ import { EmbedBuilder } from '@discordjs/builders';
 
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
-import { getDeploymentId } from '@/lib/config';
+import { getCommitHash, getCommitHashShort, getDeploymentId } from '@/lib/config';
 import { getUserProfile } from '@/lib/utils';
 import { errorEmbedBuilder } from '@/ui';
 import { Env } from '@/types';
@@ -59,13 +59,12 @@ export default class StatsSlashCommand extends SlashCommand {
 
     const env = this.creator.client as Env;
 
-    const [appInfo, deploymentId] = await Promise.all([
+    const [appInfo, deploymentId, commitHash, commitHashShort] = await Promise.all([
       ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', { auth: true }),
-      getDeploymentId(env)
+      getDeploymentId(env),
+      getCommitHash(env),
+      getCommitHashShort(env)
     ]);
-
-    const COMMIT_HASH = env.LAST_COMMIT;
-    const COMMIT_HASH_SHORT = env.LAST_COMMIT_SHORT;
 
     const guildCount = appInfo.approximate_guild_count;
     const slashCreateVersion = packageJson.devDependencies['slash-create'];
@@ -81,7 +80,7 @@ export default class StatsSlashCommand extends SlashCommand {
         },
         {
           name: 'Version',
-          value: `${APP_VERSION} [\`[${COMMIT_HASH_SHORT}]\`](${APP_GITHUB}/commit/${COMMIT_HASH})`,
+          value: `${APP_VERSION} [\`[${commitHashShort}]\`](${APP_GITHUB}/commit/${commitHash})`,
           inline: true
         },
         {
