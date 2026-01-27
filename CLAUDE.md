@@ -103,6 +103,47 @@ fix(ci): display correct deployment ID in GitHub Action
 chore: bump version to v1.3.2
 ```
 
+## GitHub Issues & Pull Requests
+
+### Creating Issues
+
+When creating issues with `gh issue create`, always apply the appropriate label using the `--label` flag:
+
+| Label           | When to use                                      |
+|-----------------|--------------------------------------------------|
+| `bug`           | Something isn't working                          |
+| `enhancement`   | New feature or request                           |
+| `documentation` | Improvements or additions to documentation       |
+| `question`      | Further information is requested                 |
+
+```bash
+# Bug report
+gh issue create --title "Fix: ..." --label "bug" --body "..."
+
+# Feature request
+gh issue create --title "Add: ..." --label "enhancement" --body "..."
+```
+
+Multiple labels can be combined when applicable (e.g., `--label "bug" --label "documentation"`).
+
+### Creating Pull Requests
+
+When creating PRs with `gh pr create`, apply labels that match the type of change:
+
+| PR type                | Label(s)        |
+|------------------------|-----------------|
+| Bug fix                | `bug`           |
+| New feature            | `enhancement`   |
+| Documentation update   | `documentation` |
+| Bug fix + docs update  | `bug`, `documentation` |
+
+```bash
+gh pr create --title "fix(commands): ..." --label "bug" --body "..."
+gh pr create --title "feat(ui): ..." --label "enhancement" --body "..."
+```
+
+Always include at least one label. Derive the label from the commit type (`fix` -> `bug`, `feat` -> `enhancement`, `docs` -> `documentation`).
+
 ## Release Process
 
 Follow [Semantic Versioning](https://semver.org/) for releases:
