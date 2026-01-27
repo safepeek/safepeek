@@ -56,17 +56,9 @@ jobs:
           echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> "$GITHUB_ENV"
           echo "Deployment ID: $DEPLOYMENT_ID"
 
-      - name: Print new cloudflare deployment id
-        run: |
-          echo "Current Deployment ID: $DEPLOYMENT_ID"
-
-      - name: Set new cloudflare deployment id
+      - name: Save deployment ID to KV
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: deployments status
-          postCommands: |
-            echo "*** get the cloudflare deployment id ***"
-            echo "${{ env.DEPLOYMENT_ID }}" | wrangler secret put CF_DEPLOYMENT_ID
-            echo "******"
+          command: kv:key put --binding=CONFIG "DEPLOYMENT_ID" "${{ env.DEPLOYMENT_ID }}"

@@ -6,9 +6,9 @@ export type Env = {
   GOOGLE_API_KEY: string;
   LAST_COMMIT: string;
   LAST_COMMIT_SHORT: string;
-  CF_DEPLOYMENT_ID: string;
   NODE_ENV: string;
   API_KEY: string;
   API_BASE_ROUTE: string;
   GITHUB_TOKEN: string;
+  CONFIG: KVNamespace;
 };

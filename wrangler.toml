@@ -5,6 +5,10 @@ compatibility_flags = ["nodejs_compat"]
 
 vars = { NODE_ENV = "production" }
 
+[[kv_namespaces]]
+binding = "CONFIG"
+id = "016a364fc2854b758ee01504fdf01b72"
+
 [env.development]
 
 [placement]
