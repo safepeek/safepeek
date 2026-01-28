@@ -9,4 +9,5 @@ export type Env = {
   API_BASE_ROUTE: string;
   GITHUB_TOKEN: string;
   CONFIG: KVNamespace;
+  USER_CACHE: KVNamespace;
 };

@@ -12,10 +12,9 @@ import { EmbedBuilder } from '@discordjs/builders';
 import packageJson from '@/../package.json';
 import { APP_GITHUB, APP_VERSION, EMBED_COLOR } from '@/lib/constants';
 import { getCommitHash, getCommitHashShort, getDeploymentId } from '@/lib/config';
-import { getUserProfile } from '@/lib/utils';
+import { resolveEphemeral } from '@/lib/cache';
 import { errorEmbedBuilder } from '@/ui';
 import { Env } from '@/types';
-import { UserResponseError } from '@/types/user';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -45,19 +44,11 @@ export default class StatsSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const profile = await getUserProfile({
-      creator: this.creator,
-      ctx
-    });
-
-    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
-
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
+    const env = this.creator.client as Env;
+    const ephemeral = options.ephemeral ?? (await resolveEphemeral(ctx.user.id, env));
 
     await ctx.defer(ephemeral);
-
-    const env = this.creator.client as Env;
 
     const [appInfo, deploymentId, commitHash, commitHashShort] = await Promise.all([
       ctx.creator.requestHandler.request<APIApplication>('GET', '/applications/@me', { auth: true }),

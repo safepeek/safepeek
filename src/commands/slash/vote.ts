@@ -10,9 +10,9 @@ import {
   SlashCreator
 } from 'slash-create/web';
 import { EmbedBuilder } from '@discordjs/builders';
-import { getUserProfile } from '@/lib/utils';
+import { resolveEphemeral } from '@/lib/cache';
 import { errorEmbedBuilder } from '@/ui';
-import { UserResponseError } from '@/types/user';
+import { Env } from '@/types';
 import { APP_NAME, BOT_LISTS, EMBED_COLOR } from '@/lib/constants';
 
 type OptionTypes = {
@@ -43,15 +43,9 @@ export default class VoteSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const profile = await getUserProfile({
-      creator: this.creator,
-      ctx
-    });
-
-    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
-
+    const env = this.creator.client as Env;
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? (await resolveEphemeral(ctx.user.id, env));
 
     const embed = new EmbedBuilder()
       .setDescription(`You may view below each bot list site and where **\`${APP_NAME}\`** is listed for voting.`)

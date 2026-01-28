@@ -11,10 +11,10 @@ import {
 import { EmbedBuilder } from '@discordjs/builders';
 import { stripIndents } from 'common-tags';
 
-import { getUserProfile } from '@/lib/utils';
+import { resolveEphemeral } from '@/lib/cache';
 import { APP_NAME, EMBED_COLOR, WEBSITE } from '@/lib/constants';
 import { errorEmbedBuilder } from '@/ui';
-import { UserResponseError } from '@/types/user';
+import { Env } from '@/types';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -44,15 +44,9 @@ export default class HelpSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const profile = await getUserProfile({
-      creator: this.creator,
-      ctx
-    });
-
-    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
-
+    const env = this.creator.client as Env;
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? (await resolveEphemeral(ctx.user.id, env));
 
     const analyzeSlashCommandId: string =
       this.creator.client.NODE_ENV === 'production' ? '1210526106634027019' : '1210506556710588487';

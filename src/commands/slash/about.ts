@@ -19,9 +19,10 @@ import {
   EMBED_COLOR,
   WEBSITE
 } from '@/lib/constants';
-import { getUserProfile } from '@/lib/utils';
+import { getCommitHash, getCommitHashShort } from '@/lib/config';
+import { resolveEphemeral } from '@/lib/cache';
 import { errorEmbedBuilder } from '@/ui';
-import { UserResponseError } from '@/types/user';
+import { Env } from '@/types';
 
 type OptionTypes = {
   ephemeral: boolean | undefined;
@@ -51,19 +52,12 @@ export default class AboutSlashCommand extends SlashCommand {
   }
 
   async run(ctx: CommandContext) {
-    const profile = await getUserProfile({
-      creator: this.creator,
-      ctx
-    });
-
-    if (!profile.ok) throw new Error((profile as UserResponseError).data.code);
-
+    const env = this.creator.client as Env;
     const options = ctx.options as OptionTypes;
-    const ephemeral = options.ephemeral ?? profile.data.ephemeral ?? true;
+    const ephemeral = options.ephemeral ?? (await resolveEphemeral(ctx.user.id, env));
 
     const date = new Date();
-    const COMMIT_HASH = this.creator.client.LAST_COMMIT;
-    const COMMIT_HASH_SHORT = this.creator.client.LAST_COMMIT_SHORT;
+    const [COMMIT_HASH, COMMIT_HASH_SHORT] = await Promise.all([getCommitHash(env), getCommitHashShort(env)]);
 
     const embed: APIEmbed = new EmbedBuilder()
       .setTitle(APP_NAME)
