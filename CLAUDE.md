@@ -168,6 +168,44 @@ Follow [Semantic Versioning](https://semver.org/) for releases:
 
 Draft release is pending final review on GitHub. Publishing is done manually via GitHub UI, which triggers the Cloudflare deployment workflow.
 
+## Discord Changelog
+
+The Discord changelog channel posts are separate from GitHub releases. They are curated, user-facing summaries — not a 1:1 mirror of release notes.
+
+### Principles
+
+- **Only post for meaningful changes.** Skip purely internal releases (CI fixes, dependency bumps, refactoring). Batch patch releases together.
+- **Write for users, not developers.** Describe what changed in terms of user-visible behavior, not implementation details.
+- **Cover all repos.** Each changelog post can span `safepeek/safepeek` (Bot), `safepeek/web` (Website & API). Omit a section if it has no user-facing changes for that period.
+- **Keep it short.** A few bullets per section. Link to full changelogs for anyone who wants technical details.
+
+### Embed Structure
+
+```json
+{
+  "timestamp": "<ISO 8601 timestamp>",
+  "title": "Changelog | #<number>",
+  "description": "### Bot\n- ...\n\n### Website\n- ...\n\n### API\n- ...\n\n**Full Changelog**: [Bot](<compare URL>) · [Web](<compare URL>)",
+  "image": {
+    "url": "https://cdn.safepeek.org/assets/changelogs/<number>.png"
+  },
+  "color": 7649791,
+  "footer": {
+    "text": "Bot <version range> · Web <version range> · Release Date"
+  }
+}
+```
+
+### Guidelines
+
+- **Title** uses the changelog number (e.g., `#008`), not a version number.
+- **Sections** (`Bot`, `Website`, `API`) are only included when there are relevant changes. Drop empty sections.
+- **Bullets** use `**New:**`, `**Fixed:**`, or `**Improved:**` prefixes for user-facing items. Internal-only changes get a single "Internal stability improvements" line or are omitted entirely.
+- **Footer** shows the version ranges covered per repo (e.g., `Bot v1.3.3–v1.3.4 · Web v0.5.0–v0.5.6`).
+- **Image URL** is based on the changelog number: `https://cdn.safepeek.org/assets/changelogs/<number>.png`
+- **Full Changelog links** point to GitHub compare views spanning the entire range since the last changelog post, one per repo.
+- The last changelog posted was **#008**.
+
 ## Environment Variables
 
 Required in `.env`:
