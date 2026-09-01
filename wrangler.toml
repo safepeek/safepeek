@@ -21,7 +21,6 @@ mode = "smart"
 [observability]
 enabled = false
 head_sampling_rate = 1
-redact_query_string = false
 
 [observability.logs]
 enabled = true
