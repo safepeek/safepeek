@@ -17,3 +17,19 @@ id = "83debe59d30c4b92ae726ef5fcd39842"
 
 [placement]
 mode = "smart"
+
+[observability]
+enabled = false
+head_sampling_rate = 1
+redact_query_string = false
+
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+persist = true
+invocation_logs = true
+
+[observability.traces]
+enabled = true
+persist = true
+head_sampling_rate = 1
