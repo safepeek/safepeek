@@ -2,6 +2,10 @@
 
 This file provides guidance for Claude when working with the SafePeek codebase.
 
+## Working Autonomy
+
+Work through investigation, edits, dependency installs, and local verification (lint, build, dev server) without pausing to confirm each step. Always explicitly ask for approval before `git commit`, `git push`, `git tag` (when it will be pushed), `gh release create`/publish, `wrangler deploy`, or any other action that ships or publishes something.
+
 ## Project Overview
 
 SafePeek is a Discord bot that analyzes URLs for safety threats. It expands shortened links, extracts metadata, and checks URLs against Google Safe Browsing API. Built as a serverless Cloudflare Worker using the slash-create framework.
